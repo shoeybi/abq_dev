@@ -1,0 +1,5 @@
+#! /bin/bash
+echo "copying $1"
+scp $1 $2:/tmp > /dev/null 2>&1
+echo "executing $1"
+ssh $2 "/tmp/$1; rm -f /tmp/$1"
