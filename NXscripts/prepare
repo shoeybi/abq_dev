@@ -1,4 +1,6 @@
 #! /bin/bash
-machine=ubuntu@ec2-204-236-139-121.us-west-1.compute.amazonaws.com #webserver
-machine=ubuntu@ec2-184-169-205-230.us-west-1.compute.amazonaws.com #desktop
-./runSSH prepareAWS.sh $machine
+if [ "$NXset" != "set" ]; then
+    source ./NXsetup
+fi
+cat $HOME/.ssh/id_rsa.pub | ssh -i $DSKkey $DSKaccount 'cat >> $HOME/.ssh/authorized_keys' ;
+./runSSH prepareAWS.sh $DSKaccount ;

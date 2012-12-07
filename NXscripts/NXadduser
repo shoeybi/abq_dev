@@ -1,6 +1,7 @@
 #! /bin/bash
-#machine=ubuntu@ec2-204-236-139-121.us-west-1.compute.amazonaws.com #webserver
-machine=ubuntu@ec2-184-169-205-230.us-west-1.compute.amazonaws.com #desktop
-ssh $machine sudo /usr/NX/bin/nxserver --system --useradd $1
-sed "s/ABQUSER/$1/g" ./sessions/AWSdesktop.nxs-generic > ./sessions/AWSdesktop.nxs-$1
+if [ "$NXset" != "set" ]; then
+    source ./NXsetup
+fi
+ssh $DSKaccount sudo /usr/NX/bin/nxserver --system --useradd $1
+sed -e "s/ABQUSER/$1/g" -e "s/ABQDSK/$DSKmachine/g" ./sessions/AWSdesktop.nxs-generic > ./sessions/AWSdesktop.nxs-$1
 ln -fs /home/khalighi/sshScript/sessions/AWSdesktop.nxs-$1 $HOME/.nx/config/AWSdesktop.nxs

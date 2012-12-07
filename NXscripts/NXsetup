@@ -1,0 +1,7 @@
+#! /bin/bash
+#ubuntu@ec2-54-241-70-19.us-west-1.compute.amazonaws.com
+export DSKmachine=ec2-50-18-244-56.us-west-1.compute.amazonaws.com ;
+export DSKaccount=ubuntu@$DSKmachine ;
+export DSKkey=./keys/AWS_desktop_hosts.pem
+export NXset=set ;
+

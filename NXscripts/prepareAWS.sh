@@ -2,11 +2,11 @@
 downloadDir=~/.packages ;
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update ;
-sudo -E apt-get upgrade ;
+sudo -E apt-get -y upgrade ;
 sudo -E apt-get -y install openssh-server ;
 #sudo -E apt-get -y install gnome-session ;
 sudo -E apt-get -y install ubuntu-desktop ;
-sudo -E apt-get -y install compizconfig-settings-manager ;
+#sudo -E apt-get -y install compizconfig-settings-manager ;
 sudo -E apt-get -y install gnome-session-fallback ;
 if [ ! -d "$downloadDir" ]; then 
     mkdir $downloadDir ;
