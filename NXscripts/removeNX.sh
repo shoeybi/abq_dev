@@ -1,4 +1,7 @@
 #! /bin/bash
+
+## script to remove NX
+
 archiveDir=~/.NXarchive
 downloadDir=~/.packages ;
 if [ ! -d "$archiveDir" ]; then 

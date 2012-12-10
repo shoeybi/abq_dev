@@ -1,4 +1,9 @@
 #! /bin/bash
+
+## this routine connects to a machine and runs a script
+## usage
+## runSSH script machinename
+
 echo "copying $1"
 scp $1 $2:/tmp > /dev/null 2>&1
 echo "executing $1"

@@ -1,7 +1,18 @@
 #! /bin/bash
+
+## add an NX user remotely
+## usage:
+## NXadduser username 
+
 if [ "$NXset" != "set" ]; then
     source ./NXsetup
 fi
+
+## add user
 ssh $DSKaccount sudo /usr/NX/bin/nxserver --system --useradd $1
+
+## make .nxs session file
 sed -e "s/ABQUSER/$1/g" -e "s/ABQDSK/$DSKmachine/g" ./sessions/AWSdesktop.nxs-generic > ./sessions/AWSdesktop.nxs-$1
+
+## link it properly
 ln -fs /home/khalighi/sshScript/sessions/AWSdesktop.nxs-$1 $HOME/.nx/config/AWSdesktop.nxs
