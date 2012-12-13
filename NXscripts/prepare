@@ -4,7 +4,7 @@
 
 ## set the nodes and keys 
 if [ "$NXset" != "set" ]; then
-    source ./NXsetup
+    source $NXHOME/NXsetup
 fi
 ## make public keys if not made already 
 if [ -ne $HOME/.ssh/id_rsa.pub ]; then
@@ -15,4 +15,4 @@ chmod 400 $DSKKEY
 ## set passwordless ssh
 cat $HOME/.ssh/id_rsa.pub | ssh -i $DSKkey $DSKaccount 'cat >> $HOME/.ssh/authorized_keys' ;
 ## remotely run prepareAWS.sh
-./runSSH prepareAWS.sh $DSKaccount ;
+$NXHOME/runSSH prepareAWS.sh $DSKaccount ;

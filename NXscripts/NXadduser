@@ -5,14 +5,14 @@
 ## NXadduser username 
 
 if [ "$NXset" != "set" ]; then
-    source ./NXsetup
+    source $NXDIR/NXsetup
 fi
 
 ## add user
 ssh $DSKaccount sudo /usr/NX/bin/nxserver --system --useradd $1
 
 ## make .nxs session file
-sed -e "s/ABQUSER/$1/g" -e "s/ABQDSK/$DSKmachine/g" ./sessions/AWSdesktop.nxs-generic > ./sessions/AWSdesktop.nxs-$1
+sed -e "s/ABQUSER/$1/g" -e "s/ABQDSK/$DSKmachine/g" $NXDIR/sessions/AWSdesktop.nxs-generic > $NXDIR/sessions/AWSdesktop.nxs-$1
 
 ## link it properly
-ln -fs /home/khalighi/sshScript/sessions/AWSdesktop.nxs-$1 $HOME/.nx/config/AWSdesktop.nxs
+ln -fs $NXDIR/sessions/AWSdesktop.nxs-$1 $SESSIONDIR/AWSdesktop.nxs

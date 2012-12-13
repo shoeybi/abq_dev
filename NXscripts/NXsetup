@@ -2,10 +2,16 @@
 
 ## set up the machines and keys
 
-export WEBmachine=ec2-54-241-70-19.us-west-1.compute.amazonaws.com ;
+export NXDIR=$PWD
+
 export DSKmachine=ec2-50-18-244-56.us-west-1.compute.amazonaws.com ;
 export DSKaccount=ubuntu@$DSKmachine ;
+export DSKkey=$NXDIR/keys/AWS_desktop_hosts.pem
+
+export WEBmachine=ec2-54-241-70-19.us-west-1.compute.amazonaws.com ;
 export WEBaccount=ubuntu@$WEBmachine ;
-export DSKkey=./keys/AWS_desktop_hosts.pem
+export WEBkey=$NXDIR/keys/AWS_webserver_hosts.pem
+export SESSIONDIR=/home/khalighi/.nx/config/
+
 export NXset=set ;
 
