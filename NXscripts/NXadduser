@@ -9,7 +9,7 @@ if [ "$NXset" != "set" ]; then
 fi
 
 ## add user
-ssh $DSKaccount sudo /usr/NX/bin/nxserver --system --useradd $1
+ssh $DSKaccount "echo -e '$2\n$2' | sudo /usr/NX/bin/nxserver --system --useradd $1"
 
 ## make .nxs session file
 sed -e "s/ABQUSER/$1/g" -e "s/ABQDSK/$DSKmachine/g" $NXDIR/sessions/AWSdesktop.nxs-generic > $NXDIR/sessions/AWSdesktop.nxs-$1
