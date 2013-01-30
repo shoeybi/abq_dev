@@ -69,7 +69,7 @@
 <option key="VNC images compression" value="3" />
 </group>
 <group name="Login" >
-<option key="Auth" value="EMPTY_PASSWORD" />
+<option key="Auth" value="PASSD" />
 <option key="Guest Mode" value="false" />
 <option key="Guest password" value="" />
 <option key="Guest username" value="" />
