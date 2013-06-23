@@ -2,7 +2,7 @@
 
 ## add an NX user remotely
 ## usage:
-## NXadduser username 
+## NXadduser username password 
 
 if [ "$NXset" != "set" ]; then
     source $NXDIR/NXsetup
@@ -12,7 +12,7 @@ fi
 ssh $DSKaccount "echo -e '$2\n$2' | sudo /usr/NX/bin/nxserver --system --useradd $1"
 
 ##password scramble
-export PASSD=`NXpassScramble $2`
+export PASSD=`./NXpassScramble $2`
 ## make .nxs session file
 sed -e "s/ABQUSER/$1/g" -e "s/ABQDSK/$DSKmachine/g" -e "s/PASSD/$PASSD/g" $NXDIR/sessions/AWSdesktop.nxs-generic > $NXDIR/sessions/AWSdesktop.nxs-$1
 
