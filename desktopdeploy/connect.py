@@ -1,20 +1,19 @@
+#!/usr/bin/env python
+# ================================================================
+# Author : Yaser Khalighi
+# Date : June 2013
+#
+# function calls for managing and connecting to EC2  
+# ================================================================
 import boto 
 import ec2
 import time
 import sys
 import subprocess
-# a key
+# a key dir
 key_dir = '/Users/khalighi/Projects/Abaqual/keys'
 # a security group
 scg = ['quicklaunch-0']
-# an AMI
-ami = 'ami-fe002cbb'
-# supported instance types
-INSTANCE_TYPES = {'micro':'t1.micro', 
-                  'small' :'m1.small',
-                  'medium':'m1.medium',
-                  'large ':'m1.large',
-                  }
 # AWSquery shows all the instances that are currently running
 def query(instances=None,regions="all"):
 # loop through all regions   
@@ -63,17 +62,14 @@ def terminate_all(instances=None,regions="all"):
 # update the instance
                 instance.terminate()
 
-def launch_instance(type='micro',key_name='abaqual_key',region='us-west-1'):
+def launch_instance(instance_type='t1.micro',\
+                        ami      ='ami-fe002cbb',\
+                        key_name ='abaqual_key',\
+                        region   ='us-west-1'):
 # connect to the region
     conn = boto.ec2.connect_to_region(region)
     if conn is None :
         raise NameError("region "+region+" is invalid")
-# get the instance type based on type
-    try:
-        instance_type = INSTANCE_TYPES[type]
-    except:
-        print "instance type "+type+" is not supported"
-        raise
 # create the key if needed
     if conn.get_key_pair(key_name) is None:
         key      = conn.create_key_pair(key_name)
@@ -107,7 +103,9 @@ def get_instance(instanceId,region='us-west-1'):
 
 # get the instance 
     try:
-        instance = conn.get_all_instances(instance_ids=instanceId)[0].instances[0]
+        instance = conn.get_all_instances(
+            instance_ids=instanceId
+            )[0].instances[0]
     except (boto.exception.EC2ResponseError,IndexError):
         raise NameError("instance id "+instanceId+" was not found")
 
@@ -195,7 +193,8 @@ def instance_is_running(instanceId,region='us-west-1'):
     print ""
     return 0
 
-def run_at_instance(instanceId,input,command_type='command',wait=False,region='us-west-1',verbose=0):
+def run_at(input,instanceId,input_type='command',\
+               wait=False,region='us-west-1',verbose=0):
 # get connection
     conn     = boto.ec2.connect_to_region(region)
     if conn is None :
@@ -214,18 +213,21 @@ def run_at_instance(instanceId,input,command_type='command',wait=False,region='u
     except IOError:
         raise NameError("cannot find "+filename)
 #prepare the input command
-    if   command_type is 'command' :
+    if   input_type is 'command' :
         command_prep = ' "'+input+'"'
-    elif command_type is 'script' :
+    elif input_type is 'script' :
         try:
             with open(input): pass
         except IOError:
             raise NameError("cannot find "+input)
         command_prep = ' <'+input
     else :
-        raise nameError(command_type+" is not recognized")
+        raise nameError(input_type+" is not recognized")
 #prepare the ssh command
-    ssh_command = 'ssh  -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" -i '+key_filename+' ubuntu@'+public_dns
+    uname = 'ubuntu'
+    ssh_command = \
+        'ssh  -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" -i '+\
+        key_filename+' '+uname+'@'+public_dns
 #run the command
     if verbose > 0: 
         print "running at instance : "+ssh_command+command_prep  
@@ -243,3 +245,6 @@ def run_at_instance(instanceId,input,command_type='command',wait=False,region='u
             pass
 #return the output
     return (p.stdout,p.stderr)
+
+            
+            
