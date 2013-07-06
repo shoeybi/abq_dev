@@ -12,14 +12,12 @@ def print_box(string):
 
 #print_box("testing query(regions='us-west-1')")
 #connect.terminate_all()
-connect.query(regions='us-west-1')
+#connect.query(regions='us-west-1')
 
 #connect.terminate_instance('i-16d7054d')
-#connect.terminate_instance('i-6cd50737')
-#connect.terminate_instance('i-8cd507d7')
-
 
 #print_box("starting an instance") 
+#(instance_id,region) = connect.launch_instance()
 
 
 #instance_id = 'i-f46db0af'
@@ -33,7 +31,6 @@ connect.query(regions='us-west-1')
 #    nx.run_nxcommand('userlist','i-2e449b75',region='us-west-1',verbose=2)
 #connect.run_command_at_instance(instance_id,'ls -altr /tmp')
 
-#(instance_id,region) = connect.launch_instance()
 
 #connect.terminate_instance('i-ead50fb1')
 #connect.query(regions=region)
@@ -46,15 +43,33 @@ connect.query(regions='us-west-1')
 #print_box("testing stopping an instance")
 #connect.stop_instance("i-ba5f89e1")
 
-#import scramble
-#p  = "kajshd"
-#s  = scramble.scrambleString(p)
-#p_ = scramble.unScramble(s)
-#print p
-#print s
-#print p_
-uname = 'yashar'
-pswd = 'hahaha' 
-nx.add_user(uname,pswd,'i-2e449b75')
-nx.run_nxcommand('userlist','i-2e449b75',verbose=2)
-nx.write_nxs_file(uname,pswd,'i-2e449b75',region='us-west-1')
+if True:
+    instanceId = 'i-2e449b75'
+    uname = 'yaser'
+    pswd = 'hahaha' 
+    print_box('getting userlist')
+    print nx.user_list(instanceId,verbose=0)
+        
+    print_box('delete a user')
+    print nx.del_user(uname,instanceId,verbose=0)
+    
+    print_box('getting userlist')
+    print nx.user_list(instanceId,verbose=0)
+        
+    print_box('add a user')
+    print nx.add_user(uname,pswd,instanceId,verbose=0)
+    
+    print_box('add another user')
+    print nx.add_user('johndoe','aslkjd',instanceId,verbose=0)
+    
+    print_box('getting userlist')
+    print nx.user_list(instanceId,verbose=0)
+
+    print_box('delete all users')
+    nx.del_all_users(instanceId,verbose=0)
+    
+    print_box('getting userlist')
+    print nx.user_list(instanceId,verbose=0)
+    
+    
+

@@ -229,22 +229,30 @@ def run_at(input,instanceId,input_type='command',\
         'ssh  -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" -i '+\
         key_filename+' '+uname+'@'+public_dns
 #run the command
-    if verbose > 0: 
+    if verbose > 1: 
         print "running at instance : "+ssh_command+command_prep  
     p = subprocess.Popen(ssh_command+command_prep,
                          shell=True,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
 #write the output
-    if verbose > 1: 
-        for line in p.stdout.readlines():
+    if p.stdout :
+        out_lines = p.stdout.readlines()
+    else:
+        out_lines = None
+    
+    if p.stderr :
+        err_lines = p.stderr.readlines()
+    else:
+        err_lines = None
+    if verbose > 0: 
+        for line in out_lines:
             print line,
-#wait for the command to finish
+    #wait for the command to finish
     if wait:
-        for line in p.stdout.readlines():
-            pass
+        p.wait()
 #return the output
-    return (p.stdout,p.stderr)
+    return (out_lines,err_lines)
 
             
             

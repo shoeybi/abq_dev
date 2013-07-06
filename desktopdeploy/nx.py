@@ -10,33 +10,109 @@ import re
 import scramble
 def working(instanceId,region='us-west-1',verbose=0):    
     working = False
-    (stdout,stderr) = connect.run_at('sudo /usr/NX/bin/nxserver --status',\
-                                         instanceId,wait=False)
-    for line in stdout.readlines():
+    (out_lines,err_lines) = connect.run_at('sudo /usr/NX/bin/nxserver --status',\
+                                         instanceId,wait=False,verbose=0)
+    for line in out_lines:
         if re.search("^NX>\s110\sNX\sServer\sis\srunning\.$",line):
             working = True
     if not working and (verbose > 0) :
-        print "nx is not workin, the output is:"
-        for line in stdout.readlines():
+        print "nx is not working, the output is:"
+        for line in out_lines:
             print line,
     return working
 
 def run_nxcommand(command,instanceId,region='us-west-1',verbose=0):
-    (stdout,stderr) = connect.run_at('sudo /usr/NX/bin/nxserver --'+command,\
-                                         instanceId,wait=False)
-    if verbose > 1: 
-        for line in stdout.readlines():
-            print line,
-    return (stdout,stderr)
+    (out_lines,err_lines) = connect.run_at('sudo /usr/NX/bin/nxserver --'+command,\
+                                         instanceId,wait=False,verbose=verbose)
+    return (out_lines,err_lines)
     
+def user_is_valid(uname,instanceId,region='us-west-1',verbose=0):
+  
+    success = False
+    
+    if not working(instanceId):
+        raise nameError("nx is not working")
+    
+    nxcommand = 'usercheck '+uname
+    (out_lines,err_lines) = run_nxcommand(nxcommand,instanceId,region,verbose=verbose)
+    for line in out_lines:
+        if re.search('^NX>\s900\sPublic\skey\sauthentication\ssucceeded\.$', line):
+            success = True
+    
+    if not success and (verbose > 0) :
+        print 'user '+uname+' is not working'
+
+    return success
+
+def user_list(instanceId,region='us-west-1',verbose=0):
+    
+    if not working(instanceId):
+        raise nameError("nx is not working")
+
+    command = 'userlist'
+    (out_lines,err_lines) = run_nxcommand(command,instanceId,verbose=verbose)
+    
+    output_list = []
+    
+    start_reading = False
+    for line in out_lines:
+        if re.search('NX>\s999\sBye\.$',line):
+            break
+        if start_reading :
+            matchObj = re.search('^(\S+)$',line)
+            if matchObj:
+                output_list.append(matchObj.group(1))
+        if re.search('^--------------------------------$',line):
+            start_reading = True
+    return output_list
+    
+
 def add_user(uname,pswd,instanceId,region='us-west-1',verbose=0):
     
     if not working(instanceId):
         raise nameError("nx is not working")
     command = 'echo -e \''+pswd+'\\n'+pswd+\
         '\' | sudo /usr/NX/bin/nxserver --system --useradd '+uname
-    (stdout,stderr) = connect.run_at(command,instanceId,wait=True,verbose=0)
-    return (stdout,stderr)
+    (out_lines,err_lines) = connect.run_at(command,instanceId,wait=True,verbose=verbose)
+    
+    success = False
+    
+    for line in out_lines:
+        if re.search('^NX>\s301\sUser:\s'+uname+'\senabled\sin\sthe\sNX\suser\sDB\.$', \
+                         line):
+            success = True
+            
+    if not success and (verbose > 0) :
+        print 'user '+uname+' could not be added'
+    
+    return success
+
+def del_user(uname,instanceId,region='us-west-1',verbose=0):
+    
+    if not user_is_valid(uname,instanceId,region,verbose=verbose):
+        return True
+
+    if not working(instanceId):
+        raise nameError("nx is not working")
+    
+    command = 'userdel '+uname+' --system'
+    (out_lines,err_lines) = run_nxcommand(command,instanceId,verbose=verbose)
+    
+    success = False
+        
+    for line in out_lines:
+        if re.search('^NX>\s307\sUser:\s'+uname+'\sremoved\sfrom\sthe\ssystem\.$', line):
+            success = True
+    if not success and (verbose > 0) :
+        print 'user '+uname+' cannot be removed'
+    
+    return success
+
+def del_all_users(instanceId,region='us-west-1',verbose=0):
+    for uname in user_list(instanceId,region,verbose=verbose):
+        if not del_user(uname,instanceId,region,verbose=verbose):
+            raise nameError('could not delete user '+uname)
+    return True
 
 def write_nxs_file(uname,pswd,instanceId,region='us-west-1'):
 #get file names
