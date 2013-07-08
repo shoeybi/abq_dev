@@ -3,256 +3,114 @@
 # Author : Yaser Khalighi
 # Date : June 2013
 #
-# function calls for managing and connecting to EC2  
+# function calls for connecting to EC2  
 # ================================================================
-import boto 
-import ec2
-import time
-import sys
-import subprocess
-# a key dir
-key_dir = '/Users/khalighi/Projects/Abaqual/keys'
-# a security group
-scg = ['quicklaunch-0']
-# AWSquery shows all the instances that are currently running
-def query(instances=None,regions="all"):
-# loop through all regions   
-    regions_ = boto.ec2.regions()
-    for region in regions_:
-# only connect to the regions listed
-        if region.name not in regions and regions is not "all":
-            continue
-        conn = region.connect()
-        reservations 	= conn.get_all_instances(instances)
-# loop through all reservations in a region
-        for reservation in reservations:
-            instances_	= reservation.instances
-# loop through all instances in a reservation
-            for instance in instances_ :
-# update the instance
-                instance.update()
-# print all the data
-                print "-------------------------------------------------------"
-                print "id   	   ", instance.id
-                print "type        ", instance.instance_type
-                print "region name ", region.name
-                print "reservation ", reservation.id
-                print "public dns  ", instance.public_dns_name
-                print "state       ", instance.state 
-                print "kernel      ", instance.kernel
-                print "launch time ", instance.launch_time
-                print "key name    ", instance.key_name
-                print "image_id    ", instance.image_id
+import aws
 
-# kills all the instances that are currently available
-def terminate_all(instances=None,regions="all"):
-# loop through all regions   
-    regions_ = boto.ec2.regions()
-    for region in regions_:
-# only connect to the regions listed
-        if region.name not in regions and regions is not "all":
-            continue
-        conn = region.connect()
-        reservations 	= conn.get_all_instances(instances)
-# loop through all reservations in a region
-        for reservation in reservations:
-            instances_	= reservation.instances
-# loop through all instances in a reservation
-            for instance in instances_ :
-# update the instance
-                instance.terminate()
+class Connection:
 
-def launch_instance(instance_type='t1.micro',\
-                        ami      ='ami-fe002cbb',\
-                        key_name ='abaqual_key',\
-                        region   ='us-west-1'):
-# connect to the region
-    conn = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError("region "+region+" is invalid")
-# create the key if needed
-    if conn.get_key_pair(key_name) is None:
-        key      = conn.create_key_pair(key_name)
-        try:
-            key.save( key_dir )
-        except:
-            raise NameError("could not save the key "+key_name)
-    else:
-        filename = key_dir+"/"+key_name+'.pem'
-        try:
-            with open(filename): pass
-        except IOError:
-            raise NameError("cannot find "+filename)
-        
-# launch the instance
-    instance = conn.run_instances(ami,
-                                  instance_type=instance_type,
-                                  security_groups=scg,
-                                  key_name=key_name).instances[0]
-    if instance is None :
-        raise NameError("instance could not be launched")
-# return the id and regionn
-    return instance.id,region
+    def __init__(self,instance_id,region,verbose=0):
 
-def get_instance(instanceId,region='us-west-1'):
+# initiate
+        self.instance_id     = instance_id
+        self.region          = region
+	self.verbose         = verbose
 
-# get the connection to the region
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError("region "+region+" is invalid")
-
-# get the instance 
-    try:
-        instance = conn.get_all_instances(
-            instance_ids=instanceId
-            )[0].instances[0]
-    except (boto.exception.EC2ResponseError,IndexError):
-        raise NameError("instance id "+instanceId+" was not found")
-
-# return the instance
-    return instance 
-
-def stop_instance(instanceId,region='us-west-1'):
-# get connection    
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError("region "+region+" is invalid")
-
-# stop the instance
-    try:
-        result = conn.stop_instances(instance_ids=instanceId)
-    except boto.exception.EC2ResponseError:
-        raise NameError("could not stop instance "+instanceId)
-
-# check if it is stopped
-    if (result[0].id != instanceId):
-        raise NameError("could not stop instance "+instanceId)
-
-def terminate_instance(instanceId,region='us-west-1'):
-# get connection    
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError("region "+region+" is invalid")
-
-# terminate the instance
-    try:
-        result = conn.terminate_instances(instance_ids=instanceId)
-    except boto.exception.EC2ResponseError:
-        raise NameError("could not terminate instance "+instanceId)
-
-# check if it is terminated
-    if (result[0].id != instanceId):
-        raise NameError("could not terminate instance "+instanceId)
-
-def start_instance(instanceId,region='us-west-1'):
-# get connection    
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError("region "+region+" is invalid")
-
-# start the instance    
-    try:
-        result = conn.start_instances(instance_ids=instanceId)
-    except boto.exception.EC2ResponseError:
-        raise NameError("could not start instance "+instanceId)
-
-# check if it is started
-    if (result[0].id != instanceId):
-        raise NameError("could not start instance "+instanceId)
-
-def state_instance(instanceId,region='us-west-1'):
-# get connection
-    try:
-        instance = get_instance(instanceId,region=region)
-        instance.update()
-        return instance.state
-    except NameError:
-        return "invalid"
-
-def instance_is_running(instanceId,region='us-west-1'):
-    
-    i = 0
-    while i < 60 :
-        state = state_instance(instanceId,region=region)
-        i = i + 1
-        if (state == "pending"):
-            if i == 1:
-                print "waiting for instance "+instanceId+" to get ready",
-            print ".",
-            sys.stdout.flush()
-            time.sleep(5)
-        elif (state == "running"):
-            if i > 1:
-                print "running! waiting for another 30 sec"
-                time.sleep(30)
-            return 1
+# check the status of the instance        
+        if aws.instance_is_running(instance_id,region):
+            pass
         else:
-            print ""
-            return 0
+            raise NameError('instance '+instance_id+' is down')
+
+# get public dns
+        self.public_dns      = aws.get_instance(instance_id,region).public_dns_name
+
+# initaite a subprocess ssh connection                
+        self.shepherd_proc   = aws.ssh(instance_id,region)
+
+# ----------------------------------------------------------------
+# get the state of connection by status of shepherd proc 
+# ----------------------------------------------------------------   
+    def connected(self):
         
-    print ""
-    return 0
+        if self.shepherd_proc.returncode is None:
+            return True
+        else:
+            return False
 
-def run_at(input,instanceId,input_type='command',\
-               wait=False,region='us-west-1',verbose=0):
-# get connection
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError("region "+region+" is invalid")
-#get instance and check if it is running    
-    instance = get_instance(instanceId,region=region)
-    if not instance_is_running(instanceId,region):
-        raise NameError("cannot connect to instance "+instanceId)
-#get key and ip address
-    instance.update()
-    public_dns    = instance.public_dns_name
-    key_name      = instance.key_name
-    key_filename = key_dir+"/"+key_name+'.pem'
-    try:
-        with open(key_filename): pass
-    except IOError:
-        raise NameError("cannot find "+filename)
-#prepare the input command
-    if   input_type is 'command' :
-        command_prep = ' "'+input+'"'
-    elif input_type is 'script' :
-        try:
-            with open(input): pass
-        except IOError:
-            raise NameError("cannot find "+input)
-        command_prep = ' <'+input
-    else :
-        raise nameError(input_type+" is not recognized")
-#prepare the ssh command
-    uname = 'ubuntu'
-    ssh_command = \
-        'ssh  -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" -i '+\
-        key_filename+' '+uname+'@'+public_dns
-#run the command
-    if verbose > 1: 
-        print "running at instance : "+ssh_command+command_prep  
-    p = subprocess.Popen(ssh_command+command_prep,
-                         shell=True,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-#write the output
-    if p.stdout :
-        out_lines = p.stdout.readlines()
-    else:
-        out_lines = None
-    
-    if p.stderr :
-        err_lines = p.stderr.readlines()
-    else:
-        err_lines = None
-    if verbose > 0: 
-        for line in out_lines:
-            print line,
-    #wait for the command to finish
-    if wait:
-        p.wait()
-#return the output
-    return (out_lines,err_lines)
+# ----------------------------------------------------------------
+# connect by initiating a shepherd ssh process 
+# ----------------------------------------------------------------   
+    def connect(self):
+# check if already connected
+        if self.connected():
+            return
 
+# initaite a subprocess ssh connection              
+        self.shepherd_proc  = aws.ssh(self.instance_id,self.region)
+
+# check if ssh is alive            
+        if not self.connected():
+            raise NameError('ssh to '+instance_id+' died')
             
+
+# ----------------------------------------------------------------
+# disconnect by terminating the shepherd process
+# ----------------------------------------------------------------   
+    def disconnect(self):
+# check if already connected
+        if not self.connected():
+            return
+# terminate the current process        
+        self.shepherd_proc.terminate()
+        self.shepherd_proc.wait()
+
+# check if ssh is alive            
+        if self.connected():
+            raise NameError('ssh to '+self.instance_id+' is alive')
+
+# ----------------------------------------------------------------
+# reconnect the shepherd process if not alive
+# ----------------------------------------------------------------   
+    def reconnect(self):       
+
+# terminate the current process        
+        self.shepherd_proc.terminate()
+        self.shepherd_proc.wait()
+
+# reconnect the shepherd if not alive
+        self.shepherd_proc  = aws.ssh(self.instance_id,self.region)
             
+# ----------------------------------------------------------------
+# run a command or script at node
+# ----------------------------------------------------------------   
+    def run_at(self,input,input_type='command',wait_for_output=True,print_stdout=False):
+# check if connected
+
+        if not self.connected():
+            self.connect()
+        
+# prepare the input command
+        if   input_type is 'command' :
+            command_prep = ' "'+input+'"'
+        elif input_type is 'script' :
+            try:
+                with open(input): pass
+            except IOError:
+                raise NameError("cannot find "+input)
+            command_prep = ' <'+input
+        else :
+            raise NameError(input_type+" is not recognized")
+
+# run the command at ssh        
+        proc = aws.ssh(self.instance_id,self.region,command_prep)
+
+# write the output if needed
+        if wait_for_output:
+            out_lines = proc.stdout.readlines()
+            if print_stdout:
+                for line in out_lines:
+                    print line,
+        else:
+            out_lines = []        
+        return out_lines

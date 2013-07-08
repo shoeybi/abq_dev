@@ -15,6 +15,8 @@ sudo -E apt-get -y upgrade ;
 sudo -E apt-get -y install ubuntu-desktop ;
 #sudo -E apt-get -y install compizconfig-settings-manager ;
 sudo -E apt-get -y install gnome-session-fallback ;
+#sudo apt-get install imagemagick --fix-missing ;
+sudo apt-get scrot;
 ## download and install NX
 if [ ! -d "$downloadDir" ]; then 
     mkdir $downloadDir ;

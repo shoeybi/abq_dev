@@ -8,53 +8,85 @@
 import connect
 import re
 import scramble
-def working(instanceId,region='us-west-1',verbose=0):    
+
+# ----------------------------------------------------------------
+# is nx server working?
+# ----------------------------------------------------------------   
+def working(connection,verbose=0):    
+
+# run the nx command
+    out_lines = connection.run_at('sudo /usr/NX/bin/nxserver --status')
+
+# analyze the output 
     working = False
-    (out_lines,err_lines) = connect.run_at('sudo /usr/NX/bin/nxserver --status',\
-                                         instanceId,wait=False,verbose=0)
     for line in out_lines:
         if re.search("^NX>\s110\sNX\sServer\sis\srunning\.$",line):
             working = True
+
+# write the output if needed
     if not working and (verbose > 0) :
         print "nx is not working, the output is:"
         for line in out_lines:
             print line,
+
+# return  
     return working
 
-def run_nxcommand(command,instanceId,region='us-west-1',verbose=0):
-    (out_lines,err_lines) = connect.run_at('sudo /usr/NX/bin/nxserver --'+command,\
-                                         instanceId,wait=False,verbose=verbose)
-    return (out_lines,err_lines)
+# ----------------------------------------------------------------
+# run an nx command
+# ----------------------------------------------------------------   
+def run_nxcommand(command,connection,verbose=0):
     
-def user_is_valid(uname,instanceId,region='us-west-1',verbose=0):
+# set the vebosity
+    if verbose > 0 :
+        print_stdout=True 
+    else: 
+        print_stdout=False 
+
+# run ssh command
+    out_lines = connection.run_at('sudo /usr/NX/bin/nxserver --'+command,\
+                                   print_stdout=print_stdout)
+
+# return    
+    return out_lines
+
+# ----------------------------------------------------------------
+# check if username is valid
+# ----------------------------------------------------------------   
+def user_is_valid(uname,connection,verbose=0):
   
-    success = False
-    
-    if not working(instanceId):
-        raise nameError("nx is not working")
-    
+# prepare nx command    
     nxcommand = 'usercheck '+uname
-    (out_lines,err_lines) = run_nxcommand(nxcommand,instanceId,region,verbose=verbose)
+
+# run the nxcommand
+    out_lines = run_nxcommand(nxcommand,connection,verbose=verbose)
+
+# analyze the output
+    success = False
     for line in out_lines:
         if re.search('^NX>\s900\sPublic\skey\sauthentication\ssucceeded\.$', line):
             success = True
-    
+            
+# write output if needed
     if not success and (verbose > 0) :
         print 'user '+uname+' is not working'
 
+# return
     return success
 
-def user_list(instanceId,region='us-west-1',verbose=0):
+# ----------------------------------------------------------------
+# get the userlist
+# ----------------------------------------------------------------   
+def user_list(connection,verbose=0):
     
-    if not working(instanceId):
-        raise nameError("nx is not working")
-
-    command = 'userlist'
-    (out_lines,err_lines) = run_nxcommand(command,instanceId,verbose=verbose)
+# prepare nx command
+    nxcommand = 'userlist'
+    out_lines = run_nxcommand(nxcommand,connection,verbose=verbose)
     
-    output_list = []
-    
+# analyze the output
+    output_list = [] 
     start_reading = False
+    
     for line in out_lines:
         if re.search('NX>\s999\sBye\.$',line):
             break
@@ -64,72 +96,126 @@ def user_list(instanceId,region='us-west-1',verbose=0):
                 output_list.append(matchObj.group(1))
         if re.search('^--------------------------------$',line):
             start_reading = True
+
+# return
     return output_list
-    
 
-def add_user(uname,pswd,instanceId,region='us-west-1',verbose=0):
-    
-    if not working(instanceId):
-        raise nameError("nx is not working")
-    command = 'echo -e \''+pswd+'\\n'+pswd+\
-        '\' | sudo /usr/NX/bin/nxserver --system --useradd '+uname
-    (out_lines,err_lines) = connect.run_at(command,instanceId,wait=True,verbose=verbose)
-    
-    success = False
-    
-    for line in out_lines:
-        if re.search('^NX>\s301\sUser:\s'+uname+'\senabled\sin\sthe\sNX\suser\sDB\.$', \
-                         line):
-            success = True
-            
-    if not success and (verbose > 0) :
-        print 'user '+uname+' could not be added'
-    
-    return success
+# ----------------------------------------------------------------
+# write nxs file
+# ----------------------------------------------------------------   
+def write_nxs_file(uname,pswd,connection):
 
-def del_user(uname,instanceId,region='us-west-1',verbose=0):
-    
-    if not user_is_valid(uname,instanceId,region,verbose=verbose):
-        return True
-
-    if not working(instanceId):
-        raise nameError("nx is not working")
-    
-    command = 'userdel '+uname+' --system'
-    (out_lines,err_lines) = run_nxcommand(command,instanceId,verbose=verbose)
-    
-    success = False
-        
-    for line in out_lines:
-        if re.search('^NX>\s307\sUser:\s'+uname+'\sremoved\sfrom\sthe\ssystem\.$', line):
-            success = True
-    if not success and (verbose > 0) :
-        print 'user '+uname+' cannot be removed'
-    
-    return success
-
-def del_all_users(instanceId,region='us-west-1',verbose=0):
-    for uname in user_list(instanceId,region,verbose=verbose):
-        if not del_user(uname,instanceId,region,verbose=verbose):
-            raise nameError('could not delete user '+uname)
-    return True
-
-def write_nxs_file(uname,pswd,instanceId,region='us-west-1'):
-#get file names
+# get file names
     session_dir = './sessions'
-    session_file_name = session_dir+'/'+instanceId+'_'+uname+'.nxs'
     master_file = './amazon.nxs'
+    session_file_name = session_dir+'/'+connection.instance_id+'_'+uname+'.nxs'
+
+#   open an output file
     out_file    = open(session_file_name, 'w')
-#scrable the password
-    scrambled   = scramble.scrambleString(pswd)
-#get public_dns
-    instance    = connect.get_instance(instanceId,region)
-    public_dns  = instance.public_dns_name
+
+# get public_dns
+    public_dns  = connection.public_dns
+
+# put the public DNS and PASSWORD in the file
     with open(master_file) as in_file:
         for line in in_file:
             line = re.sub('REPLACE_PUBLIC_DNS',public_dns,line)
             line = re.sub('REPLACE_USER',uname,line)
-            line = re.sub('REPLACE_PASSWORD',scrambled,line)
+            if re.search('REPLACE_PASSWORD',line):
+                while True: 
+                    try:
+# scrable the password
+                        scrambled   = scramble.scrambleString(pswd)
+                        newline     = re.sub('REPLACE_PASSWORD',scrambled,line)
+                        break
+                    except:
+                        print 'bad scramble-->',scrambled
+                line = newline
+
+# write in the output file
             out_file.write(line),
+
+# close both files
     in_file.close()
     out_file.close()
+
+# ----------------------------------------------------------------
+# add a user
+# ----------------------------------------------------------------   
+def add_user(uname,pswd,connection,verbose=0):
+
+# set the vebosity
+    if verbose > 0 :
+        print_stdout=True 
+    else: 
+        print_stdout=False 
+
+# prepare a command
+    command = 'echo -e \''+pswd+'\\n'+pswd+\
+        '\' | sudo /usr/NX/bin/nxserver --system --useradd '+uname
+   
+# run the command
+    out_lines = connection.run_at(command,print_stdout=print_stdout)
+    
+# check if the user is added
+    success = False    
+    for line in out_lines:
+        if re.search('^NX>\s301\sUser:\s'+uname+'\senabled\sin\sthe\sNX\suser\sDB\.$', \
+                         line):
+            success = True
+
+    if not success and (verbose > 0) :
+        print 'user '+uname+' could not be added' 
+
+# write the nxs file           
+    if success:
+        write_nxs_file(uname,pswd,connection)
+
+    return success
+
+# ----------------------------------------------------------------
+# delete a user
+# ----------------------------------------------------------------   
+def del_user(uname,connection,verbose=0):
+
+# set the vebosity
+    if verbose > 0 :
+        print_stdout=True 
+    else: 
+        print_stdout=False 
+
+# kill sessions
+    out_lines = run_nxcommand('kill '+uname,connection,verbose=verbose)
+
+# delete user on system
+    out_lines = connection.run_at('sudo userdel -rf '+uname,print_stdout=print_stdout)
+
+# delete user on nx
+    out_lines = run_nxcommand('userdel '+uname,connection,verbose=verbose)
+    
+# check if the use is removed
+    success = False        
+    for line in out_lines:
+        if re.search('^NX>\s303\sPassword\sfor\suser:\s'+uname+\
+                     '\sremoved\sfrom\sthe\sNX\spassword\sDB\.$', line):
+            success = True
+    if not success and (verbose > 0) :
+        print 'user '+uname+' cannot be removed'
+
+# return    
+    return success
+
+# ----------------------------------------------------------------
+# delete all users
+# ----------------------------------------------------------------   
+def del_all_users(connection,verbose=0):
+
+# loop through usernames and delete them 
+    for uname in user_list(connection,verbose=verbose):
+        if not del_user(uname,connection,verbose=verbose):
+            raise NameError('could not delete user '+uname)
+        else:
+            if verbose > 0 :
+                print 'user '+uname+' was deleted'
+    return True
+
