@@ -48,7 +48,7 @@
 <option key="Session" value="unix" />
 <option key="Use taint" value="true" />
 <option key="Virtual desktop" value="false" />
-<option key="Session window state" value="normal" />
+<option key="Session window state" value="fullscreen" />
 <option key="xdm mode" value="" />
 <option key="xdm broadcast port" value="177" />
 <option key="xdm list host" value="localhost" />

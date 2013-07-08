@@ -19,12 +19,12 @@ if entire_process:
     aws.query(regions=region)
 
     print_box('starting an instance') 
-#    instance_id = aws.launch(instance_type = 't1.micro', 
-#                             ami = 'ami-fe002cbb', 
-#                             key_name = 'abaqual_key', 
-#                             region = region )
+    instance_id = aws.launch(instance_type = 'm1.medium', 
+                             ami = 'ami-fe002cbb', 
+                             key_name = 'abaqual_key', 
+                             region = region )
 
-    instance_id = 'i-e8ec4fb3'
+#    instance_id = 'i-e8ec4fb3'
     print_box('establish a connection') 
     myconn = connect.Connection(instance_id,region)
 
@@ -60,7 +60,7 @@ if test_aws:
     aws.query()
     
     print_box('starting an instance') 
-    instance_id = aws.launch(instance_type = 't1.micro', 
+    instance_id = aws.launch(instance_type = 'm1.medium', 
                              ami = 'ami-fe002cbb', 
                              key_name = 'abaqual_key', 
                              region = region )

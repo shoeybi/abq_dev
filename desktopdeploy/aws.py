@@ -218,8 +218,8 @@ def instance_is_running(instance_id,region):
             time.sleep(5)
         elif (state_ == 'running'):
             if i > 1:
-                print 'running! waiting for another 10 sec'
-                time.sleep(10)
+                print 'running! waiting for another 30 sec'
+                time.sleep(30)
             return True
         else:
             print ''
@@ -274,7 +274,7 @@ def ssh(instance_id,region,command=''):
         'ssh -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" '+\
         '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" -i '+\
         key_filename+' '+account
-
+    
 # launch a ssh subprocess    
     proc  = subprocess.Popen(ssh_command+' '+command,
                                 shell=True,
