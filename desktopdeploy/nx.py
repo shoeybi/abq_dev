@@ -6,8 +6,11 @@
 # function calls for managing nx 
 # ================================================================
 import connect
+import aws
 import re
 import scramble
+import time
+import sys
 
 # ----------------------------------------------------------------
 # is nx server working?
@@ -32,6 +35,32 @@ def working(connection,verbose=0):
 # return  
     return working
 
+# ----------------------------------------------------------------
+# wait for nx server to work?
+# ----------------------------------------------------------------   
+def wait_for_nx(connection,verbose=0):    
+
+# wait for instance to run
+    if aws.instance_is_running(connection.instance_id,connection.region) is not True:
+        raise NameError('instance '+connection.instance_id+' is not running')
+
+# wait for nx to run    
+    i = 0
+    while working(connection,verbose=verbose) is not True:    
+        i = i + 1       
+        if i == 1:
+            print 'waiting for nx to get ready',
+        
+        time.sleep(10)
+        print '.',
+        sys.stdout.flush()
+        
+        if i > 60 :
+            raise NameError('after 10 mins, nx is not working on ',connection.instance_id)
+    
+    if i > 1:
+        print ''
+    
 # ----------------------------------------------------------------
 # run an nx command
 # ----------------------------------------------------------------   

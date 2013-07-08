@@ -7,12 +7,50 @@ def print_box(string):
     print string
     print '***************************************'
 
-
+entire_process  = True
 test_aws        = False
 test_connection = False
-test_nx         = True
+test_nx         = False
 
 region = 'us-west-1'
+
+if entire_process:
+    print_box("query(regions='us-west-1')")
+    aws.query(regions=region)
+
+    print_box('starting an instance') 
+#    instance_id = aws.launch(instance_type = 't1.micro', 
+#                             ami = 'ami-fe002cbb', 
+#                             key_name = 'abaqual_key', 
+#                             region = region )
+
+    instance_id = 'i-e8ec4fb3'
+    print_box('establish a connection') 
+    myconn = connect.Connection(instance_id,region)
+
+    print_box('prepare nx')
+    myconn.run_at('prepAWS_NX3p5.sh',input_type='script',wait_for_output=True,print_stdout=True)
+    
+    print_box('wait for nx')
+    nx.wait_for_nx(myconn)
+
+    print_box('getting userlist')
+    print nx.user_list(myconn,verbose=0)
+    
+    print_box('delete all users')
+    nx.del_all_users(myconn,verbose=0)
+
+    print_box('add user 1')
+    print nx.add_user('user1','asdasd',myconn,verbose=0)
+
+    print_box('add user 2')
+    print nx.add_user('user2','sfgdfawe',myconn,verbose=0)
+    
+    print_box('getting userlist')
+    print nx.user_list(myconn,verbose=0)
+
+    myconn.disconnect()
+    
 if False:
     print_box("query(regions='us-west-1')")
     aws.query(regions=region)
@@ -62,13 +100,10 @@ instance_id_up = 'i-2e449b75'
 if test_connection:
     myconn = connect.Connection(instance_id_up,region)
     for i in range(20):
-        print '------------------------------------------------',i
+        print 'ssh test #',i
         out_lines = myconn.run_at('ls',wait_for_output=True,print_stdout=False)
     myconn.disconnect()
-    for i in range(20):
-        print '------------------------------------------------',i
-        out_lines = myconn.run_at('ls',wait_for_output=True,print_stdout=False)
-    myconn.disconnect()
+
 
 if test_nx:
     myconn = connect.Connection(instance_id_up,region)

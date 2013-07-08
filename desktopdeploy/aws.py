@@ -211,21 +211,21 @@ def instance_is_running(instance_id,region):
         state_ = state(instance_id,region=region)
         i = i + 1
         if (state_ == 'pending'):
-            if i == 1:
-                print "waiting for instance "+instance_id+" to get ready",
+            if i == 1
+                print 'waiting for instance '+instance_id+' to get ready',
             print '.',
             sys.stdout.flush()
             time.sleep(5)
         elif (state_ == 'running'):
             if i > 1:
-                print "running! waiting for another 30 sec"
-                time.sleep(30)
+                print 'running! waiting for another 10 sec'
+                time.sleep(10)
             return True
         else:
-            print ""
+            print ''
             return False
         
-    print ""
+    print ''
     return False
 
 # ----------------------------------------------------------------
