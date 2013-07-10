@@ -23,7 +23,8 @@ def working(connection,verbose=0):
 # analyze the output 
     working = False
     for line in out_lines:
-        if re.search("^NX>\s110\sNX\sServer\sis\srunning\.$",line):
+#oldNx  if re.search("^NX>\s110\sNX\sServer\sis\srunning\.$",line):
+        if re.search("^NX>\s110\sEnabled\sservice:\snxserver\.$",line):
             working = True
 
 # write the output if needed
@@ -117,13 +118,13 @@ def user_list(connection,verbose=0):
     start_reading = False
     
     for line in out_lines:
-        if re.search('NX>\s999\sBye\.$',line):
-            break
+#oldNX      if re.search('NX>\s999\sBye\.$',line):
+#oldNX           break
         if start_reading :
-            matchObj = re.search('^(\S+)$',line)
+            matchObj = re.search('^(\S+)',line)
             if matchObj:
                 output_list.append(matchObj.group(1))
-        if re.search('^--------------------------------$',line):
+        if re.search('^Username\s+Redirected\sto$',line):
             start_reading = True
 
 # return
@@ -185,8 +186,8 @@ def add_user(uname,pswd,connection,verbose=0):
         print_stdout=False 
 
 # prepare a command
-    command = 'echo -e \''+pswd+'\\n'+pswd+\
-        '\' | sudo /usr/NX/bin/nxserver --system --useradd '+uname
+    command = '(sleep 1; echo '+pswd+'; sleep 1; echo '+pswd+\
+        ' ) | sudo /usr/NX/bin/nxserver --system --useradd '+uname
    
 # run the command
     out_lines = connection.run_at(command,print_stdout=print_stdout)
@@ -231,7 +232,7 @@ def del_user(uname,connection,verbose=0):
     success = False        
     for line in out_lines:
         if re.search('^NX>\s303\sPassword\sfor\suser:\s'+uname+\
-                     '\sremoved\sfrom\sthe\sNX\spassword\sDB\.$', line):
+                     '\shas\sbeen\sdeleted\sfrom\sthe\sNX\spassword\sDB\.$', line):
             success = True
     if not success and (verbose > 0) :
         print 'user '+uname+' cannot be removed'

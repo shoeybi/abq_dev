@@ -16,23 +16,23 @@ region = 'us-west-1'
 
 print_box("query(regions='us-west-1')")
 aws.query(regions=region)
-
+#aws.terminate_all(regions=region)
 if entire_process:
     print_box("query(regions='us-west-1')")
     aws.query(regions=region)
 
     print_box('starting an instance') 
-    instance_id = aws.launch(instance_type = 't1.micro', 
-                             ami = 'ami-fe002cbb', 
-                             key_name = 'abaqual_key', 
-                             region = region )
+#    instance_id = aws.launch(instance_type = 't1.micro', 
+#                             ami = 'ami-fe002cbb', 
+#                             key_name = 'abaqual_key', 
+#                             region = region )
 
-#    instance_id = 'i-e8ec4fb3'
+    instance_id = 'i-2a5cf271'#i-e8ec4fb3'
     print_box('establish a connection') 
     myconn = connect.Connection(instance_id,region)
 
-    print_box('prepare nx')
-    myconn.run_at('prepAWS_NX3p5.sh',input_type='script',wait_for_output=True,print_stdout=True)
+#    print_box('prepare nx')
+#    myconn.run_at('prepAWS_NX4beta.sh',input_type='script',wait_for_output=True,print_stdout=True)
     
     print_box('wait for nx')
     nx.wait_for_nx(myconn)
@@ -44,10 +44,10 @@ if entire_process:
     nx.del_all_users(myconn,verbose=0)
 
     print_box('add user 1')
-    print nx.add_user('user1','asdasd',myconn,verbose=0)
+    print nx.add_user('man1','aasdasdsdasd',myconn,verbose=0)
 
     print_box('add user 2')
-    print nx.add_user('user2','sfgdfawe',myconn,verbose=0)
+    print nx.add_user('man2','asf123gdfawe',myconn,verbose=0)
     
     print_box('getting userlist')
     print nx.user_list(myconn,verbose=0)
