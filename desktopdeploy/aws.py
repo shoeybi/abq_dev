@@ -219,6 +219,7 @@ def instance_is_running(instance_id,region):
         elif (state_ == 'running'):
             if i > 1:
                 print 'running! waiting for another 30 sec'
+                sys.stdout.flush()
                 time.sleep(30)
             return True
         else:

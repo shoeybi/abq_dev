@@ -132,8 +132,26 @@ def user_list(connection,verbose=0):
 # ----------------------------------------------------------------
 # write nxs file
 # ----------------------------------------------------------------   
-def write_nxs_file(uname,pswd,connection):
+def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='fullscreen'):
+    
+# scramble password
+    while True: 
+        try:
+            scrambled   = scramble.scrambleString(pswd)
+            newline     = re.sub('TEST',scrambled,'_TEST_')
+            break
+        except:
+            print 'bad scramble-->',scrambled
 
+# replace attributes
+    replace_items={
+        'REPLACE_USER'       : uname,
+        'REPLACE_PASSWORD'   : scrambled,
+        'REPLACE_PUBLIC_DNS' : connection.public_dns,
+        'REPLACE_WINDOW_MODE': window_mode,
+        'REPLACE_WIDTH'      : width,
+        'REPLACE_HEIGHT'     : height
+      }
 # get file names
     session_dir = './sessions'
     master_file = './amazon.nxs'
@@ -142,25 +160,12 @@ def write_nxs_file(uname,pswd,connection):
 #   open an output file
     out_file    = open(session_file_name, 'w')
 
-# get public_dns
-    public_dns  = connection.public_dns
-
 # put the public DNS and PASSWORD in the file
     with open(master_file) as in_file:
         for line in in_file:
-            line = re.sub('REPLACE_PUBLIC_DNS',public_dns,line)
-            line = re.sub('REPLACE_USER',uname,line)
-            if re.search('REPLACE_PASSWORD',line):
-                while True: 
-                    try:
-# scrable the password
-                        scrambled   = scramble.scrambleString(pswd)
-                        newline     = re.sub('REPLACE_PASSWORD',scrambled,line)
-                        break
-                    except:
-                        print 'bad scramble-->',scrambled
-                line = newline
-
+            for key in replace_items:
+                line = re.sub(key,replace_items[key],line)
+   
 # write in the output file
             out_file.write(line),
 

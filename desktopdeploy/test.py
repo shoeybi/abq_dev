@@ -14,12 +14,15 @@ test_nx         = False
 
 region = 'us-west-1'
 
+print_box("query(regions='us-west-1')")
+aws.query(regions=region)
+
 if entire_process:
     print_box("query(regions='us-west-1')")
     aws.query(regions=region)
 
     print_box('starting an instance') 
-    instance_id = aws.launch(instance_type = 'm1.medium', 
+    instance_id = aws.launch(instance_type = 't1.micro', 
                              ami = 'ami-fe002cbb', 
                              key_name = 'abaqual_key', 
                              region = region )

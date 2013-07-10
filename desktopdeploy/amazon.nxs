@@ -39,7 +39,7 @@
 <option key="Link speed" value="adsl" />
 <option key="HTTP service port" value="4000" />
 <option key="Session resize mode" value="scaled" />
-<option key="Resolution" value="1155x665" />
+<option key="Resolution" value="REPLACE_WIDTHxREPLACE_HEIGHT" />
 <option key="Remember password" value="true" />
 <option key="Remember username" value="true" />
 <option key="Session screenshot" value="" />
@@ -48,7 +48,7 @@
 <option key="Session" value="unix" />
 <option key="Use taint" value="true" />
 <option key="Virtual desktop" value="false" />
-<option key="Session window state" value="fullscreen" />
+<option key="Session window state" value="REPLACE_WINDOW_MODE" />
 <option key="xdm mode" value="" />
 <option key="xdm broadcast port" value="177" />
 <option key="xdm list host" value="localhost" />
