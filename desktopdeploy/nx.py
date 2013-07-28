@@ -177,7 +177,7 @@ def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='
 # ----------------------------------------------------------------
 # add a user
 # ----------------------------------------------------------------   
-def add_user(uname,pswd,connection,verbose=0):
+def add_user(uname,pswd,connection,sudoer=False,verbose=0):
 
 # set the vebosity
     if verbose > 0 :
@@ -186,12 +186,26 @@ def add_user(uname,pswd,connection,verbose=0):
         print_stdout=False 
 
 # prepare a command
-    command = '(sleep 1; echo '+pswd+'; sleep 1; echo '+pswd+\
-        ' ) | sudo /usr/NX/bin/nxserver --system --useradd '+uname
+    command 		= '(sleep 1; echo '+pswd+'; sleep 1; echo '+pswd+\
+        		' ) | sudo /usr/NX/bin/nxserver --system --useradd '+uname
    
 # run the command
-    out_lines = connection.run_at(command,print_stdout=print_stdout)
-    
+    out_lines 		= connection.run_at(command,print_stdout=print_stdout)
+
+# change the default to bash
+    command		= 'sudo chsh -s /bin/bash '+uname
+    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+
+# copy the authorized keys
+    command		= 'sudo cp /home/ubuntu/.ssh/.authorized_keys /home/'+uname+'/.ssh;'+\
+                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.ssh/.authorized_keys'
+    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+
+# add as a sudoer    
+    if sudoer:
+        command 	= 'sudo usermod -aG sudo '+uname
+        dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+        
 # check if the user is added
     success = False    
     for line in out_lines:

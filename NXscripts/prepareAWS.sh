@@ -1,1 +1,0 @@
-prepareAWSNX3p5.sh

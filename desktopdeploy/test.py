@@ -13,26 +13,28 @@ test_connection = False
 test_nx         = False
 
 region = 'us-west-1'
-
 print_box("query(regions='us-west-1')")
 aws.query(regions=region)
-#aws.terminate_all(regions=region)
+aws.terminate_all(regions=region)
 if entire_process:
     print_box("query(regions='us-west-1')")
     aws.query(regions=region)
-
+    
+#    ami = 'ami-23d9a94a' #from UBUNTU us-east-1
+    ami = 'ami-c4072e81' #from UBUNTU
+#    ami = 'ami-fe002cbb' #from AMAZON
     print_box('starting an instance') 
-#    instance_id = aws.launch(instance_type = 't1.micro', 
-#                             ami = 'ami-fe002cbb', 
-#                             key_name = 'abaqual_key', 
-#                             region = region )
+    instance_id = aws.launch(instance_type = 'm1.medium', 
+                             ami = ami, 
+                             key_name = 'abaqual_key2', 
+                             region = region )
 
-    instance_id = 'i-2a5cf271'#i-e8ec4fb3'
+#    instance_id = 'i-05260f5e'#i-e8ec4fb3'
     print_box('establish a connection') 
     myconn = connect.Connection(instance_id,region)
 
-#    print_box('prepare nx')
-#    myconn.run_at('prepAWS_NX4beta.sh',input_type='script',wait_for_output=True,print_stdout=True)
+    print_box('prepare nx')
+    myconn.run_at('prepAWS_NX4beta.sh',input_type='script',wait_for_output=True,print_stdout=True)
     
     print_box('wait for nx')
     nx.wait_for_nx(myconn)
@@ -44,14 +46,17 @@ if entire_process:
     nx.del_all_users(myconn,verbose=0)
 
     print_box('add user 1')
-    print nx.add_user('man1','aasdasdsdasd',myconn,verbose=0)
+    print nx.add_user('yaser2','yaser2',myconn,sudoer=True,verbose=0)
 
     print_box('add user 2')
-    print nx.add_user('man2','asf123gdfawe',myconn,verbose=0)
+    print nx.add_user('man2','man2',myconn,verbose=0)
     
     print_box('getting userlist')
     print nx.user_list(myconn,verbose=0)
-
+    
+    print_box('install OpenFoam')
+    myconn.run_at('installOpenFoam.sh',input_type='script',wait_for_output=True,print_stdout=True)
+    
     myconn.disconnect()
     
 if False:
@@ -116,8 +121,8 @@ if test_nx:
     pswd2 = 'haqwe_haha'
     uname3 = 'abbas'
     pswd3 = 'asdlkjasd' 
-    uname4 = 'ahmad'
-    pswd4 = 'asdlkjaasdasd' 
+    uname4 = 'yaser'
+    pswd4 = 'yaser' 
 
     print_box('getting userlist')
     print nx.user_list(myconn,verbose=0)
