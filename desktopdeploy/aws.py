@@ -265,7 +265,7 @@ def state(instance_id,region):
 # ----------------------------------------------------------------
 # wait for an instance to run
 # ----------------------------------------------------------------
-def instance_is_running(instance_id,region):
+def instance_is_running(instance_id,region,wait=True,verbose=0):
     
     i = 0
     while i < 60 :
@@ -273,27 +273,37 @@ def instance_is_running(instance_id,region):
         i = i + 1
         if (state_ == 'pending'):
             if i == 1:
-                print 'waiting for instance '+instance_id+' to get ready',
-            print '.',
-            sys.stdout.flush()
+                if verbose:
+                    print 'waiting for instance '+instance_id+' to get ready',
+            if verbose:
+                print '.',
+                sys.stdout.flush()
             time.sleep(5)
         elif (state_ == 'running'):
             if i > 1:
-                print 'running! waiting for another 30 sec'
-                sys.stdout.flush()
-                time.sleep(30)
+                if wait:
+                    if verbose:
+                        print 'running! waiting for another 30 sec'
+                        sys.stdout.flush()
+                    time.sleep(30)
+                else:
+                    if verbose:
+                        print 'running!'
+                        sys.stdout.flush()
             return True
         else:
-            print ''
+            if verbose:
+                print ''
             return False
         
-    print ''
+    if verbose:
+        print ''
     return False
 
 # ----------------------------------------------------------------
 # wait for an instance to be at given state
 # ----------------------------------------------------------------
-def instance_is_at_state(desired_state,instance_id,region):
+def instance_is_at_state(desired_state,instance_id,region,verbose=0):
     
     i = 0
     while i < 60 :
@@ -301,15 +311,19 @@ def instance_is_at_state(desired_state,instance_id,region):
         i = i + 1
         if (state_ == desired_state.strip()):
             if i > 1:
-                print 'instance is now '+desired_state
+                if verbose:
+                    print 'instance is now '+desired_state
             return True
         else: 
             if i == 1:
-                print 'waiting for instance '+instance_id,
-            print '.',
-            sys.stdout.flush()
+                if verbose:
+                    print 'waiting for instance '+instance_id,
+            if verbose:
+                print '.',
+                sys.stdout.flush()
             time.sleep(5)
-    print ''
+    if verbose:
+        print ''
     return False
 
 # ----------------------------------------------------------------

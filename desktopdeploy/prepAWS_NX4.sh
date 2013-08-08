@@ -30,6 +30,7 @@ if [ ! -d /usr/NX ]; then
     sudo service nxserver restart
 fi
 
+sudo echo '#! /bin/bash \n' > ~/.bashrccommon
 
 #if [ ! -e nxclient_3.5.0-7_amd64.deb ]; then 
 #    wget http://64.34.173.142/download/3.5.0/Linux/nxclient_3.5.0-7_amd64.deb ;

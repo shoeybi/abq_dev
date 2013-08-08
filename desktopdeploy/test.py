@@ -15,7 +15,7 @@ test_nx         = False
 region = 'us-west-1'
 print_box("query(regions='us-west-1')")
 aws.query(regions=region)
-aws.terminate_all(regions=region)
+#aws.terminate_all(regions=region)
 if entire_process:
     print_box("query(regions='us-west-1')")
     aws.query(regions=region)
@@ -29,7 +29,7 @@ if entire_process:
                              key_name = 'abaqual_key2', 
                              region = region )
 
-#    instance_id = 'i-05260f5e'#i-e8ec4fb3'
+#    instance_id = 'i-cc8a0b96'
     print_box('establish a connection') 
     myconn = connect.Connection(instance_id,region)
 
@@ -39,6 +39,10 @@ if entire_process:
     print_box('wait for nx')
     nx.wait_for_nx(myconn)
 
+    print_box('install OpenFoam')
+    myconn.run_at('installOpenFoam.sh',input_type='script',wait_for_output=True,print_stdout=True)
+
+    
     print_box('getting userlist')
     print nx.user_list(myconn,verbose=0)
     
@@ -46,7 +50,7 @@ if entire_process:
     nx.del_all_users(myconn,verbose=0)
 
     print_box('add user 1')
-    print nx.add_user('yaser2','yaser2',myconn,sudoer=True,verbose=0)
+    print nx.add_user('yaser','yaser',myconn,sudoer=True,verbose=0)
 
     print_box('add user 2')
     print nx.add_user('man2','man2',myconn,verbose=0)
@@ -68,7 +72,7 @@ if test_aws:
     aws.query()
     
     print_box('starting an instance') 
-    instance_id = aws.launch(instance_type = 'm1.medium', 
+    instance_id = aws.launch(instance_type = 'c1.medium', 
                              ami = 'ami-fe002cbb', 
                              key_name = 'abaqual_key', 
                              region = region )

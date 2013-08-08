@@ -28,8 +28,8 @@ def working(connection,verbose=0):
             working = True
 
 # write the output if needed
-    if not working and (verbose > 0) :
-        print "nx is not working, the output is:"
+    if not working and verbose:
+        print 'nx is not working, the output is:'
         for line in out_lines:
             print line,
 
@@ -50,17 +50,20 @@ def wait_for_nx(connection,verbose=0):
     while working(connection,verbose=verbose) is not True:    
         i = i + 1       
         if i == 1:
-            print 'waiting for nx to get ready',
+            if verbose:
+                print 'waiting for nx to get ready',
         
         time.sleep(10)
-        print '.',
-        sys.stdout.flush()
+        if verbose:
+            print '.',
+            sys.stdout.flush()
         
         if i > 60 :
             raise NameError('after 10 mins, nx is not working on ',connection.instance_id)
     
     if i > 1:
-        print ''
+        if verbose:
+            print ''
     
 # ----------------------------------------------------------------
 # run an nx command
@@ -68,7 +71,7 @@ def wait_for_nx(connection,verbose=0):
 def run_nxcommand(command,connection,verbose=0):
     
 # set the vebosity
-    if verbose > 0 :
+    if verbose:
         print_stdout=True 
     else: 
         print_stdout=False 
@@ -98,7 +101,7 @@ def user_is_valid(uname,connection,verbose=0):
             success = True
             
 # write output if needed
-    if not success and (verbose > 0) :
+    if not success and verbose:
         print 'user '+uname+' is not working'
 
 # return
@@ -180,7 +183,7 @@ def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='
 def add_user(uname,pswd,connection,sudoer=False,verbose=0):
 
 # set the vebosity
-    if verbose > 0 :
+    if verbose:
         print_stdout=True 
     else: 
         print_stdout=False 
@@ -197,8 +200,8 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
     dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
 # copy the authorized keys
-    command		= 'sudo cp /home/ubuntu/.ssh/.authorized_keys /home/'+uname+'/.ssh;'+\
-                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.ssh/.authorized_keys'
+    command		= 'sudo cp /home/ubuntu/.ssh/authorized_keys /home/'+uname+'/.ssh;'+\
+                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.ssh/authorized_keys'
     dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
 # add as a sudoer    
@@ -206,6 +209,17 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
         command 	= 'sudo usermod -aG sudo '+uname
         dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
         
+
+# make a .bashrc file
+    command 		= 'sudo cp ~/.bashrc /home/'+uname+'/.bashrc;'+\
+                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.bashrc'
+    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+
+# add the bashrccommon
+#    command 		= 'sudo echo "#! /bin/bash" > ~/.bashrccommon;'+\
+#                          'sudo echo ". /home/ubuntu/.bashrccommon" >> '+'/home/'+uname+'/.bashrc'
+#    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+
 # check if the user is added
     success = False    
     for line in out_lines:
@@ -213,7 +227,7 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
                          line):
             success = True
 
-    if not success and (verbose > 0) :
+    if not success and verbose:
         print 'user '+uname+' could not be added' 
 
 # write the nxs file           
@@ -228,7 +242,7 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
 def del_user(uname,connection,verbose=0):
 
 # set the vebosity
-    if verbose > 0 :
+    if verbose:
         print_stdout=True 
     else: 
         print_stdout=False 
@@ -248,7 +262,7 @@ def del_user(uname,connection,verbose=0):
         if re.search('^NX>\s303\sPassword\sfor\suser:\s'+uname+\
                      '\shas\sbeen\sdeleted\sfrom\sthe\sNX\spassword\sDB\.$', line):
             success = True
-    if not success and (verbose > 0) :
+    if not success and verbose:
         print 'user '+uname+' cannot be removed'
 
 # return    
@@ -264,7 +278,7 @@ def del_all_users(connection,verbose=0):
         if not del_user(uname,connection,verbose=verbose):
             raise NameError('could not delete user '+uname)
         else:
-            if verbose > 0 :
+            if verbose:
                 print 'user '+uname+' was deleted'
     return True
 
