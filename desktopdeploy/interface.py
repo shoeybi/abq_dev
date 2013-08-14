@@ -9,7 +9,7 @@ import aws
 import connect
 import nx
 import threading
-
+threading._DummyThread._Thread__stop = lambda x: 42
 # ----------------------------------------------------------------
 # prepare an instance. This is part of the background in
 # get_instance_id
@@ -44,6 +44,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
 # disconnect
     myconn.disconnect()
+
 
 # ----------------------------------------------------------------
 # launch an prepare an instance, then return the instance id

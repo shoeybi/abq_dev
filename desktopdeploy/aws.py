@@ -17,6 +17,7 @@ import subprocess
 
 # a key dir
 key_dir_root = '/Users/khalighi/Projects/Abaqual/keys'
+#key_dir_root = '/Users/mohammadshoeybi/Documents/Abaqual/repos/abq_web/awd/keys'
 
 # ----------------------------------------------------------------
 # query shows all the instances that are currently running
