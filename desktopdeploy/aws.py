@@ -17,7 +17,12 @@ import subprocess
 
 # a key dir
 key_dir_root = '/Users/khalighi/Projects/Abaqual/keys'
-#key_dir_root = '/Users/mohammadshoeybi/Documents/Abaqual/repos/abq_web/awd/keys'
+
+'''
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+key_dir_root = current_dir + '/../../abq_web/site/static/ssh_keys'
+'''
 
 # ----------------------------------------------------------------
 # query shows all the instances that are currently running
