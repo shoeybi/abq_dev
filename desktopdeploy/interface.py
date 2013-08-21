@@ -9,6 +9,7 @@ import aws
 import connect
 import nx
 import threading
+import os
 threading._DummyThread._Thread__stop = lambda x: 42
 # ----------------------------------------------------------------
 # prepare an instance. This is part of the background in
@@ -26,7 +27,8 @@ def prepare_instance(uname, pswd, instance_id, region):
     myconn = connect.Connection(instance_id,region)
     
 # prepare nx
-    myconn.run_at('prepAWS_NX4beta.sh',
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    myconn.run_at(current_dir+'/prepAWS_NX4beta.sh',
                   input_type='script',
                   wait_for_output=True,
                   print_stdout=False )
@@ -65,7 +67,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 # pswd:  password of the owner 
 #  
 # ----------------------------------------------------------------
-def get_instance_id(region, instance_type, os, company_name, uname, pswd):
+def get_instance_id(region, instance_type, os, key_name, uname, pswd):
     
 # supported lists
     supported_os_list     = ['ubuntu12.04'] 
@@ -98,7 +100,7 @@ def get_instance_id(region, instance_type, os, company_name, uname, pswd):
 # launch an instance
     instance_id = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
-                             key_name      = company_name, 
+                             key_name      = key_name, 
                              region        = region )
     
     thread = threading.Thread(target = prepare_instance, 
@@ -117,7 +119,7 @@ def instance_status(instance_id, region):
     except:
         return 'terminated'
 
-    if state in ['terminated','shutting-down'] :
+    if state in ['terminated','shutting-down','invalid'] :
         return 'terminated'
 
     if state in ['stopped','stopping'] :
@@ -128,7 +130,6 @@ def instance_status(instance_id, region):
         if nx.working(myconn):
             return 'ready'
         myconn.disconnect()
-    
     return 'starting up'
 
 # ----------------------------------------------------------------

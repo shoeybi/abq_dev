@@ -10,19 +10,19 @@ import ec2
 import time
 import sys
 import subprocess
+import os
 
 # ----------------------------------------------------------------
 # some pre-defined variables. may need to change later on
 # ----------------------------------------------------------------
 
 # a key dir
-key_dir_root = '/Users/khalighi/Projects/Abaqual/keys'
+#key_dir_root = '/Users/khalighi/Projects/Abaqual/keys'
 
-'''
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 key_dir_root = current_dir + '/../../abq_web/site/static/ssh_keys'
-'''
+
 
 # ----------------------------------------------------------------
 # query shows all the instances that are currently running
@@ -154,21 +154,25 @@ def launch(instance_type, ami, key_name, region ):
                     security_group_name, 
                     region 			)
     
-# create the key if needed
+# key_dir    
     key_dir = key_dir_root+'/'+region
-    if conn.get_key_pair(key_name) is None:
-        key      = conn.create_key_pair(key_name)
-        try:
-            key.save( key_dir )
-        except:
-            raise NameError('could not save the key '+key_name)
-    else:
-        filename = key_dir+'/'+key_name+'.pem'
-        try:
-            with open(filename): pass
-        except IOError:
-            raise NameError('cannot find '+filename)
-        
+    filename = key_dir+'/'+key_name+'.pem' 
+
+# clean up keys if needed
+    if conn.get_key_pair(key_name) is not None:
+        conn.delete_key_pair(key_name) 
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+# create key if needed
+    key      = conn.create_key_pair(key_name)
+    try:
+        key.save( key_dir )
+    except:
+        raise NameError('could not save the key '+key_name)
+                
 # launch the instance
     instance = conn.run_instances(ami,
                                   instance_type=instance_type,
