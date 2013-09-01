@@ -23,7 +23,6 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 key_dir_root = current_dir + '/../../abq_web/site/static/ssh_keys'
 
-
 # ----------------------------------------------------------------
 # query shows all the instances that are currently running
 # ----------------------------------------------------------------
@@ -82,15 +81,23 @@ def terminate_all(instances=None,regions='all'):
 # update the instance
                 instance.terminate()
 
+def get_region(region_name):
+    regions_ = boto.ec2.regions()
+    for region in regions_:
+# only connect to the region
+        if region.name.strip() == region_name.strip():
+            return region.connect()
+        
+# raise error if couldnt find the name
+    raise NameError('region '+region_name+' was not found')
+
 # ----------------------------------------------------------------
 # create a security group
 # ----------------------------------------------------------------
 def create_security(ports, ip_protocol, security_group_name, region ):
 
 # connect to the region
-    conn = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
+    conn = region
     
 # create the security group
     try:
@@ -116,9 +123,7 @@ def create_security(ports, ip_protocol, security_group_name, region ):
 def revoke_security(ports, ip_protocol, security_group_name, region ):
 
 # connect to the region
-    conn = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
+    conn = region
     
 # add security rules
     for port in ports:
@@ -130,6 +135,47 @@ def revoke_security(ports, ip_protocol, security_group_name, region ):
                                        cidr_ip = '0.0.0.0/0')
         except:
             pass
+
+# ----------------------------------------------------------------
+# remove key
+# ----------------------------------------------------------------
+def remove_key(key_name, region): 
+    
+    key_dir = key_dir_root
+    filename = key_dir+'/'+key_name+'.pem' 
+
+# connect to the region
+    conn = region
+
+# clean up keys 
+    try:
+        conn.delete_key_pair(key_name) 
+    except:
+        pass
+    
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+# ----------------------------------------------------------------
+# create company key
+# ----------------------------------------------------------------
+def create_key(key_name, region): 
+    
+    key_dir = key_dir_root
+    filename = key_dir+'/'+key_name+'.pem' 
+    
+# connect to the region
+    conn = region
+    
+    try:
+        key	= conn.create_key_pair(key_name)
+        key.save( key_dir )
+    except:
+        remove_key(key_name, region) 
+        key	= conn.create_key_pair(key_name)
+        key.save( key_dir )
     
 # ----------------------------------------------------------------
 # launch an instance
@@ -137,49 +183,33 @@ def revoke_security(ports, ip_protocol, security_group_name, region ):
 def launch(instance_type, ami, key_name, region ):
 
 # connect to the region
-    conn = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
-
-# create the security group
-    security_group_name = 'abaqual_security_group' ;
+    conn = region
     
-    create_security([22,80,4000,4080,4443,8080], 
-                    'tcp', 
-                    security_group_name, 
-                    region			)
-    
-    create_security([-1], 
-                    'icmp', 
-                    security_group_name, 
-                    region 			)
-    
-# key_dir    
-    key_dir = key_dir_root+'/'+region
-    filename = key_dir+'/'+key_name+'.pem' 
-
-# clean up keys if needed
-    if conn.get_key_pair(key_name) is not None:
-        conn.delete_key_pair(key_name) 
-    try:
-        os.remove(filename)
-    except OSError:
-        pass
-
-# create key if needed
-    key      = conn.create_key_pair(key_name)
-    try:
-        key.save( key_dir )
-    except:
-        raise NameError('could not save the key '+key_name)
-                
 # launch the instance
-    instance = conn.run_instances(ami,
-                                  instance_type=instance_type,
-                                  security_groups=[security_group_name],
-                                  key_name=key_name).instances[0]
-    if instance is None :
-        raise NameError('instance could not be launched')
+    try:
+        security_group_name = 'abaqual_security_group' ;
+        instance = conn.run_instances(ami,
+                                      instance_type=instance_type,
+                                      security_groups=
+                                      [security_group_name],
+                                      key_name=key_name).instances[0]
+    except:
+# create security then launch
+        create_security([22,80,4000,4080,4443,8080], 
+                        'tcp', 
+                        security_group_name, 
+                        region			)
+    
+        create_security([-1], 
+                        'icmp', 
+                        security_group_name, 
+                        region 			)
+
+        instance = conn.run_instances(ami,
+                                      instance_type=instance_type,
+                                      security_groups= 
+                                      [security_group_name],
+                                      key_name=key_name).instances[0]
 
 # return the id and regionn
     return instance.id
@@ -190,9 +220,7 @@ def launch(instance_type, ami, key_name, region ):
 def get_instance(instance_id,region):
 
 # get the connection to the region
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
+    conn     = region
 
 # get the instance 
     try:
@@ -210,9 +238,7 @@ def get_instance(instance_id,region):
 # ----------------------------------------------------------------
 def stop(instance_id,region):
 # get connection    
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
+    conn     = region
 
 # stop the instance
     try:
@@ -229,9 +255,7 @@ def stop(instance_id,region):
 # ----------------------------------------------------------------
 def terminate(instance_ids,region):
 # get connection    
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
+    conn     = region
 
 # terminate the instance
 
@@ -245,9 +269,7 @@ def terminate(instance_ids,region):
 # ----------------------------------------------------------------
 def start(instance_id,region):
 # get connection    
-    conn     = boto.ec2.connect_to_region(region)
-    if conn is None :
-        raise NameError('region '+region+' is invalid')
+    conn     = region
 
 # start the instance    
     try:
@@ -273,13 +295,30 @@ def state(instance_id,region):
         return 'invalid'
 
 # ----------------------------------------------------------------
+# get the public_dns of an instance using the instance_id
+# ----------------------------------------------------------------
+def public_dns(instance_id,region):
+# get connection
+    try:
+        instance = get_instance(instance_id,region=region)
+        instance.update()
+        return instance.public_dns_name.strip()
+
+    except NameError:
+        return 'invalid'
+
+
+# ----------------------------------------------------------------
 # wait for an instance to run
 # ----------------------------------------------------------------
-def instance_is_running(instance_id,region,wait=True,verbose=0):
+def instance_is_running(instance_id,region,verbose=0):
     
+    # get the instance
+    instance = get_instance(instance_id,region)
+
     i = 0
     while i < 60 :
-        state_ = state(instance_id,region=region)
+        state_ = state(instance_id,region)
         i = i + 1
         if (state_ == 'pending'):
             if i == 1:
@@ -291,21 +330,14 @@ def instance_is_running(instance_id,region,wait=True,verbose=0):
             time.sleep(5)
         elif (state_ == 'running'):
             if i > 1:
-                if wait:
-                    if verbose:
-                        print 'running! waiting for another 30 sec'
-                        sys.stdout.flush()
-                    time.sleep(30)
-                else:
-                    if verbose:
-                        print 'running!'
-                        sys.stdout.flush()
+                if verbose:
+                    print 'running! ip =',public_dns(instance_id,region)
+                    sys.stdout.flush()
             return True
         else:
             if verbose:
                 print ''
             return False
-        
     if verbose:
         print ''
     return False
@@ -339,7 +371,7 @@ def instance_is_at_state(desired_state,instance_id,region,verbose=0):
 # ----------------------------------------------------------------
 # ssh at the node
 # ----------------------------------------------------------------
-def ssh(instance_id,region,command=''):
+def ssh(instance_id,region,command='',time_out=10,persist=False):
 
 # get the instance
     instance = get_instance(instance_id,region)
@@ -347,7 +379,7 @@ def ssh(instance_id,region,command=''):
 # get key and ip address
     public_dns    = instance.public_dns_name
     key_name      = instance.key_name
-    key_dir = key_dir_root+'/'+region
+    key_dir 	  = key_dir_root
     key_filename  = key_dir+'/'+key_name+'.pem'
     try:
         with open(key_filename): pass
@@ -357,11 +389,16 @@ def ssh(instance_id,region,command=''):
 # prepare ssh command
     uname = 'ubuntu' 
     account  = uname+'@'+public_dns
+    # persist
+    if persist:
+        persist_ = '-o "ControlPersist 600" '
+    else: 
+        persist_ = ''
     ssh_command = \
         'ssh -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" '+\
+        '-o "ConnectTimeout '+str(time_out)+'" '+persist_+\
         '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" -i '+\
         key_filename+' '+account
-    
 # launch a ssh subprocess    
     proc  = subprocess.Popen(ssh_command+' '+command,
                                 shell=True,
@@ -371,3 +408,41 @@ def ssh(instance_id,region,command=''):
 
 # return the Popen object    
     return proc
+
+# ----------------------------------------------------------------
+# wait for an instance to run
+# ----------------------------------------------------------------
+def ssh_is_running(instance_id,region,verbose=0):
+    
+    i = 0
+    while i < 60 :
+        i = i + 1
+        if (i == 1) and verbose:
+            print 'waiting for ssh ',
+        proc = ssh(instance_id,region,command='echo working')
+        out_lines = proc.stdout.readlines()
+        if out_lines[-1].strip() == 'working':
+            if verbose:
+                print ' '
+                sys.stdout.flush()
+            return True
+        else: 
+            if verbose:
+                print '.',
+                sys.stdout.flush()
+
+        
+    return False
+
+# ----------------------------------------------------------------
+# wait for an instance to run
+# ----------------------------------------------------------------
+def ssh_working_quick(instance_id,region,verbose=0):
+    
+    proc = ssh(instance_id,region,
+               command='echo working',time_out=1)
+    out_lines = proc.stdout.readlines()
+    if out_lines[-1].strip() == 'working':
+        return True
+    else: 
+        return False

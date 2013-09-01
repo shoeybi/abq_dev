@@ -17,16 +17,17 @@ class Connection:
 	self.verbose         = verbose
 
 # check the status of the instance        
-        if aws.instance_is_running(instance_id,region):
+        if aws.instance_is_running(instance_id,region,verbose=verbose):
             pass
         else:
             raise NameError('instance '+instance_id+' is down')
 
 # get public dns
-        self.public_dns      = aws.get_instance(instance_id,region).public_dns_name
+        self.public_dns      = aws.public_dns(instance_id,region)
 
 # initaite a subprocess ssh connection                
-        self.shepherd_proc   = aws.ssh(instance_id,region)
+        if aws.ssh_is_running(instance_id,region,verbose):
+            self.shepherd_proc   = aws.ssh(instance_id,region,persist=True)
 
 # ----------------------------------------------------------------
 # get the state of connection by status of shepherd proc 
@@ -46,8 +47,9 @@ class Connection:
         if self.connected():
             return
 
-# initaite a subprocess ssh connection              
-        self.shepherd_proc  = aws.ssh(self.instance_id,self.region)
+# initaite a subprocess ssh connection
+        if aws.ssh_is_running(self.instance_id,self.region,self.verbose):
+            self.shepherd_proc  = aws.ssh(self.instance_id,self.region,persist=True)
 
 # check if ssh is alive            
         if not self.connected():
@@ -79,8 +81,8 @@ class Connection:
         self.shepherd_proc.wait()
 
 # reconnect the shepherd if not alive
-        self.shepherd_proc  = aws.ssh(self.instance_id,self.region)
-            
+        if aws.ssh_is_running(self.instance_id,self.region,self.verbose):
+            self.shepherd_proc  = aws.ssh(self.instance_id,self.region,persist=True)    
 # ----------------------------------------------------------------
 # run a command or script at node
 # ----------------------------------------------------------------   
@@ -102,7 +104,7 @@ class Connection:
         else :
             raise NameError(input_type+" is not recognized")
 
-# run the command at ssh        
+# run the command at ssh
         proc = aws.ssh(self.instance_id,self.region,command_prep)
 
 # write the output if needed

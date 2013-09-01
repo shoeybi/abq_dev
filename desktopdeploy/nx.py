@@ -11,6 +11,7 @@ import re
 import scramble
 import time
 import sys
+import os
 
 # ----------------------------------------------------------------
 # is nx server working?
@@ -157,8 +158,9 @@ def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='
         'REPLACE_HEIGHT'     : height
       }
 # get file names
-    session_dir = './sessions'
-    master_file = './amazon.nxs'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    session_dir = current_dir+'/sessions'
+    master_file = current_dir+'/amazon.nxs'
     session_file_name = session_dir+'/'+connection.instance_id+'_'+uname+'.nxs'
 
 #   open an output file
@@ -189,9 +191,9 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
         print_stdout=False 
 
 # prepare a command
-    command 		= '(sleep 1; echo '+pswd+'; sleep 1; echo '+pswd+\
+    command 		= '(sleep 5; echo '+pswd+'; sleep 5; echo '+pswd+\
         		' ) | sudo /usr/NX/bin/nxserver --system --useradd '+uname
-   
+    
 # run the command
     out_lines 		= connection.run_at(command,print_stdout=print_stdout)
 

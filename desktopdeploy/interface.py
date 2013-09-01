@@ -10,6 +10,7 @@ import connect
 import nx
 import threading
 import os
+import time
 threading._DummyThread._Thread__stop = lambda x: 42
 # ----------------------------------------------------------------
 # prepare an instance. This is part of the background in
@@ -24,29 +25,32 @@ threading._DummyThread._Thread__stop = lambda x: 42
 def prepare_instance(uname, pswd, instance_id, region):
 
 # establish a connection
-    myconn = connect.Connection(instance_id,region)
-    
+#    start_time = time.time()
+    myconn = connect.Connection(instance_id,region,verbose=0)
+#    print 'establish connection',time.time()-start_time
 # prepare nx
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    myconn.run_at(current_dir+'/prepAWS_NX4beta.sh',
-                  input_type='script',
-                  wait_for_output=True,
-                  print_stdout=False )
+#    current_dir = os.path.dirname(os.path.abspath(__file__))
+#    myconn.run_at(current_dir+'/prepAWS_NX4beta.sh',
+#                  input_type='script',
+#                  wait_for_output=True,
+#                  print_stdout=False )
 # wait for nx
-    nx.wait_for_nx(myconn)
+#    start_time = time.time()
+#    nx.wait_for_nx(myconn,verbose=0)
+#    print 'nx wait',time.time()-start_time
 
 # add user 
+#    start_time = time.time()
     nx.add_user(uname,pswd,myconn,sudoer=True,verbose=0)
-
+#    print 'add user',time.time()-start_time
 # install OpenFoam
-    myconn.run_at('installOpenFoam.sh',
-                  input_type='script',
-                  wait_for_output=True,
-                  print_stdout=False )
+#    myconn.run_at('installOpenFoam.sh',
+#                  input_type='script',
+#                  wait_for_output=True,
+#                  print_stdout=False )
 
 # disconnect
     myconn.disconnect()
-
 
 # ----------------------------------------------------------------
 # launch an prepare an instance, then return the instance id
@@ -67,70 +71,65 @@ def prepare_instance(uname, pswd, instance_id, region):
 # pswd:  password of the owner 
 #  
 # ----------------------------------------------------------------
-def get_instance_id(region, instance_type, os, key_name, uname, pswd):
+def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
     
-# supported lists
-    supported_os_list     = ['ubuntu12.04'] 
-    supported_region_list = ['us-east-1', 
-                             'us-west-1'] 
-    supported_instance_type_list = ['t1.micro', 
-                                    'm1.small',
-                                    'm1.medium',
-                                    'm1.large',
-                                    'c1.medium',
-                                    'c1.xlarge'] 
-                          
 # AMI's
-    ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
-             ('us-west-1','ubuntu12.04') : 'ami-c4072e81'}
 
-# error checks
-    if region not in supported_region_list :
-        raise NameError('region '+region+' is not supported') 
-
-    if os not in supported_os_list :
-        raise NameError('os '+os+' is not supported') 
-
-    if instance_type not in supported_instance_type_list :
-        raise NameError('instnace_type '+instance_type+' is not supported') 
+#    ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
+#             ('us-west-1','ubuntu12.04') : 'ami-c4072e81'}
+# ami-d8fdd79d is a prepared west UBUNTU, replacing ami-c4072e81
     
-# get the AMI
-    ami = ami_dic[(region,os)]
+    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d'}
 
+# get the AMI
+    ami 	= ami_dic[(region_name,os)]
+    
+# get the region
+    region 	= aws.get_region(region_name)
+    
 # launch an instance
+#    start_time = time.time()
     instance_id = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
-                             key_name      = key_name, 
+                             key_name      = company_name, 
                              region        = region )
     
-    thread = threading.Thread(target = prepare_instance, 
+#    print 'launch time',time.time()-start_time
+
+    thread 	= threading.Thread(target = prepare_instance, 
                               args   = (uname, pswd, instance_id, region))
     thread.start()
     return instance_id
     
 # ----------------------------------------------------------------
 # get the status of an instance
+# return (status,public_dns,url)
 # ----------------------------------------------------------------
-def instance_status(instance_id, region):
+def instance_status(instance_id, region_name):
 
+# get the region
+    region 	= aws.get_region(region_name)
 # get the state    
     try: 
-        state = aws.state(instance_id,region)
+        instance 	= aws.get_instance(instance_id,region)
+        state    	= instance.state.strip()
+        public_dns	= instance.public_dns_name.strip()
     except:
-        return 'terminated'
-
+        return ('terminated','None','None')
+    
     if state in ['terminated','shutting-down','invalid'] :
-        return 'terminated'
+        return ('terminated','None','None')
 
     if state in ['stopped','stopping'] :
-        return 'standby' 
+        return ('standby','None','None')
     
     if state =='running':
-        myconn = connect.Connection(instance_id,region)
-        if nx.working(myconn):
-            return 'ready'
-        myconn.disconnect()
-    return 'starting up'
+        if aws.ssh_working_quick(instance_id,region):
+            port = '4443' 
+            url  = 'https://'+public_dns+':'+port
+            return ('ready',public_dns,url)
+    
+    return ('starting up','None','None')
 
 # ----------------------------------------------------------------
 # start an instance
@@ -178,34 +177,21 @@ def terminate_instance(instance_id, region):
         aws.terminate(instance_id,region)
     else:
         print 'Warning in terminte_instance! state is '+state
-# ----------------------------------------------------------------
-# get public dns
-# ----------------------------------------------------------------
-def get_public_dns(instance_id, region):
-    
-    # get status
-    status = instance_status(instance_id, region)
-    
-    if status=='ready' :
-        instance   = aws.get_instance(instance_id,region)
-        public_dns = instance.public_dns_name
-        return public_dns
-    else :
-        return 'None'
 
 # ----------------------------------------------------------------
-# get public dns
+# make company
 # ----------------------------------------------------------------
-def get_url(instance_id, region):
+def make_company(company_name, region_name): 
     
-    port = '4443' 
-    # get status
-    status = instance_status(instance_id, region)
+    key_name 	= company_name
+    region   	= aws.get_region(region_name)
+    aws.create_key(key_name, region)
+# ----------------------------------------------------------------
+# remove company
+# ----------------------------------------------------------------
+def remove_company(company_name, region_name): 
     
-    if status=='ready' :
-        instance   = aws.get_instance(instance_id,region)
-        public_dns = instance.public_dns_name
-        return 'https://'+public_dns+':'+port
-    else :
-        return 'None'
+    key_name 	= company_name
+    region   	= aws.get_region(region_name)
+    aws.remove_key(key_name, region)
 
