@@ -23,7 +23,10 @@ class Connection:
             raise NameError('instance '+instance_id+' is down')
 
 # get public dns
-        self.public_dns      = aws.public_dns(instance_id,region)
+        instance 	     = aws.get_instance(instance_id,region=region)
+        instance.update()
+    	self.public_dns      = instance.public_dns_name.strip()
+        self.key_name        = instance.key_name.strip()
 
 # initaite a subprocess ssh connection                
         if aws.ssh_is_running(instance_id,region,verbose):
@@ -64,9 +67,9 @@ class Connection:
         if not self.connected():
             return
 # terminate the current process        
+
         self.shepherd_proc.terminate()
         self.shepherd_proc.wait()
-
 # check if ssh is alive            
         if self.connected():
             raise NameError('ssh to '+self.instance_id+' is alive')
@@ -76,7 +79,7 @@ class Connection:
 # ----------------------------------------------------------------   
     def reconnect(self):       
 
-# terminate the current process        
+# terminate the current process 
         self.shepherd_proc.terminate()
         self.shepherd_proc.wait()
 

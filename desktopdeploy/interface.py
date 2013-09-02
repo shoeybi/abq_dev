@@ -11,7 +11,11 @@ import nx
 import threading
 import os
 import time
+import shutil
 threading._DummyThread._Thread__stop = lambda x: 42
+
+current_dir     = aws.current_dir
+companies_root  = aws.companies_root
 # ----------------------------------------------------------------
 # prepare an instance. This is part of the background in
 # get_instance_id
@@ -183,6 +187,12 @@ def terminate_instance(instance_id, region):
 # ----------------------------------------------------------------
 def make_company(company_name, region_name): 
     
+    company_dir = companies_root+'/'+company_name 
+    if not os.path.exists(company_dir):
+        os.makedirs(company_dir)
+    if not os.path.exists(company_dir+'/sessions'):
+        os.makedirs(company_dir+'/sessions')
+    
     key_name 	= company_name
     region   	= aws.get_region(region_name)
     aws.create_key(key_name, region)
@@ -194,4 +204,7 @@ def remove_company(company_name, region_name):
     key_name 	= company_name
     region   	= aws.get_region(region_name)
     aws.remove_key(key_name, region)
+    
+    company_dir = companies_root+'/'+company_name 
+    shutil.rmtree(company_dir)
 

@@ -16,12 +16,8 @@ import os
 # some pre-defined variables. may need to change later on
 # ----------------------------------------------------------------
 
-# a key dir
-#key_dir_root = '/Users/khalighi/Projects/Abaqual/keys'
-
-import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-key_dir_root = current_dir + '/../../abq_web/site/static/ssh_keys'
+companies_root = current_dir + '/../../abq_web/site/static/companies'
 
 # ----------------------------------------------------------------
 # query shows all the instances that are currently running
@@ -141,7 +137,7 @@ def revoke_security(ports, ip_protocol, security_group_name, region ):
 # ----------------------------------------------------------------
 def remove_key(key_name, region): 
     
-    key_dir = key_dir_root
+    key_dir  = companies_root+'/'+key_name
     filename = key_dir+'/'+key_name+'.pem' 
 
 # connect to the region
@@ -163,9 +159,9 @@ def remove_key(key_name, region):
 # ----------------------------------------------------------------
 def create_key(key_name, region): 
     
-    key_dir = key_dir_root
+    key_dir  = companies_root+'/'+key_name
     filename = key_dir+'/'+key_name+'.pem' 
-    
+        
 # connect to the region
     conn = region
     
@@ -379,7 +375,7 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
 # get key and ip address
     public_dns    = instance.public_dns_name
     key_name      = instance.key_name
-    key_dir 	  = key_dir_root
+    key_dir  	  = companies_root+'/'+key_name
     key_filename  = key_dir+'/'+key_name+'.pem'
     try:
         with open(key_filename): pass
@@ -438,7 +434,22 @@ def ssh_is_running(instance_id,region,verbose=0):
 # wait for an instance to run
 # ----------------------------------------------------------------
 def ssh_working_quick(instance_id,region,verbose=0):
-    
+
+# initialize if needed
+#    if not hasattr(ssh_working_quick, "last_time"):
+#        ssh_working_quick.last_time = time.time()
+         
+# intervals for establishing conn is 500 sec
+    update_time  = 500
+
+# initialize if needed
+    if ( not hasattr(ssh_working_quick, "last_time") or  (time.time() - ssh_working_quick.last_time) > update_time ) : 
+
+        proc0 = ssh(instance_id,region,
+                    command='exit',time_out=1,persist=True)
+        ssh_working_quick.last_time = time.time()
+
+# ssh
     proc = ssh(instance_id,region,
                command='echo working',time_out=1)
     out_lines = proc.stdout.readlines()
