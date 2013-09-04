@@ -169,8 +169,9 @@ def stop_instance(instance_id, region):
 # ----------------------------------------------------------------
 # terminte an instance
 # ----------------------------------------------------------------
-def terminate_instance(instance_id, region):
-
+def terminate_instance(instance_id, region_name):
+    
+    region = aws.get_region(region_name)
     # get the state
     try:
         state = aws.state(instance_id,region)

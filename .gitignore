@@ -1,2 +1,3 @@
-*.pyc 
-*~
+desktopdeploy/*.pyc
+desktopdeploy/*~
+
