@@ -75,7 +75,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 # pswd:  password of the owner 
 #  
 # ----------------------------------------------------------------
-def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
+def get_instance_id(region_name, instance_type, os, company_name, uname, supported_regions, pswd='1234'):
     
 # AMI's
 
@@ -83,13 +83,14 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 #             ('us-west-1','ubuntu12.04') : 'ami-c4072e81'}
 # ami-d8fdd79d is a prepared west UBUNTU, replacing ami-c4072e81
     
-    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d'}
+    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d',
+                  ('us-east-1','ubuntu12.04') : 'ami-23d9a94a'}
 
 # get the AMI
     ami 	= ami_dic[(region_name,os)]
     
 # get the region
-    region 	= aws.get_region(region_name)
+    region 	= aws.get_region(region_name, supported_regions)
     
 # launch an instance
 #    start_time = time.time()
@@ -109,10 +110,10 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # get the status of an instance
 # return (status,public_dns,url)
 # ----------------------------------------------------------------
-def instance_status(instance_id, region_name):
+def instance_status(instance_id, region_name, supported_regions):
 
 # get the region
-    region 	= aws.get_region(region_name)
+    region 	= aws.get_region(region_name, supported_regions)
 # get the state    
     try: 
         instance 	= aws.get_instance(instance_id,region)
@@ -169,9 +170,9 @@ def stop_instance(instance_id, region):
 # ----------------------------------------------------------------
 # terminte an instance
 # ----------------------------------------------------------------
-def terminate_instance(instance_id, region_name):
+def terminate_instance(instance_id, region_name, supported_regions):
     
-    region = aws.get_region(region_name)
+    region = aws.get_region(region_name, supported_regions)
     # get the state
     try:
         state = aws.state(instance_id,region)
@@ -186,25 +187,26 @@ def terminate_instance(instance_id, region_name):
 # ----------------------------------------------------------------
 # make company
 # ----------------------------------------------------------------
-def make_company(company_name, region_name): 
+def make_company(company_name, supported_regions): 
     
     company_dir = companies_root+'/'+company_name 
     if not os.path.exists(company_dir):
         os.makedirs(company_dir)
     if not os.path.exists(company_dir+'/sessions'):
         os.makedirs(company_dir+'/sessions')
-    
     key_name 	= company_name
-    region   	= aws.get_region(region_name)
-    aws.create_key(key_name, region)
+    for region_name in supported_regions:
+        region   	= aws.get_region(region_name, supported_regions)
+        aws.create_key(key_name, region)
 # ----------------------------------------------------------------
 # remove company
 # ----------------------------------------------------------------
-def remove_company(company_name, region_name): 
+def remove_company(company_name, supported_regions): 
     
     key_name 	= company_name
-    region   	= aws.get_region(region_name)
-    aws.remove_key(key_name, region)
+    for region_name in supported_regions:
+        region   	= aws.get_region(region_name, supported_regions)
+        aws.remove_key(key_name, region)
     
     company_dir = companies_root+'/'+company_name 
     shutil.rmtree(company_dir)
