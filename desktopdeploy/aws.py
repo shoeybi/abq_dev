@@ -11,6 +11,8 @@ import time
 import sys
 import subprocess
 import os
+import base64
+import re
 
 # ----------------------------------------------------------------
 # some pre-defined variables. may need to change later on
@@ -77,7 +79,11 @@ def terminate_all(instances=None,regions='all'):
 # update the instance
                 instance.terminate()
 
-def get_region(region_name):
+def get_region(region_name, supported_regions):
+    
+    if region_name not in supported_regions:
+        raise NameError('region '+region_name+' not supported')
+    
     regions_ = boto.ec2.regions()
     for region in regions_:
 # only connect to the region
@@ -85,7 +91,7 @@ def get_region(region_name):
             return region.connect()
         
 # raise error if couldnt find the name
-    raise NameError('region '+region_name+' was not found')
+    raise NameError('region '+region_name+' not found')
 
 # ----------------------------------------------------------------
 # create a security group
@@ -131,6 +137,19 @@ def revoke_security(ports, ip_protocol, security_group_name, region ):
                                        cidr_ip = '0.0.0.0/0')
         except:
             pass
+# ----------------------------------------------------------------
+# encode a  key
+# ----------------------------------------------------------------
+def encode(filename):
+    
+    keystr = ''
+    filenamepub = filename+'.pub'
+    with open(filenamepub) as in_file:
+        for line in in_file:
+            keystr = keystr+line.strip()
+      
+    #encoded = base64.b64encode(keystr)
+    return keystr
 
 # ----------------------------------------------------------------
 # remove key
@@ -149,11 +168,6 @@ def remove_key(key_name, region):
     except:
         pass
     
-    try:
-        os.remove(filename)
-    except OSError:
-        pass
-
 # ----------------------------------------------------------------
 # create company key
 # ----------------------------------------------------------------
@@ -164,14 +178,26 @@ def create_key(key_name, region):
         
 # connect to the region
     conn = region
-    
+
+#if key_file does not exist, make it
     try:
-        key	= conn.create_key_pair(key_name)
-        key.save( key_dir )
+        with open(filename): pass
+    except IOError:
+        command = '/usr/bin/ssh-keygen -N "" -m PEM -f '+filename
+        proc  = subprocess.Popen(command,
+                                 shell=True,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+        out_lines = proc.stdout.readlines()
+    encoded_key = encode(filename) 
+
+#if key exists, just import it
+    try:
+        conn.import_key_pair(key_name, encoded_key)
     except:
-        remove_key(key_name, region) 
-        key	= conn.create_key_pair(key_name)
-        key.save( key_dir )
+        conn.delete_key_pair(key_name) 
+        conn.import_key_pair(key_name, encoded_key)
     
 # ----------------------------------------------------------------
 # launch an instance
