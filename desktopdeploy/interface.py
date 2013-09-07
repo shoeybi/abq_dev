@@ -90,7 +90,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1
     ami 	= ami_dic[(region_name,os)]
     
 # get the region
-    region 	= aws.get_region(region_name)
+    region 	= aws.get_region(region_name, supported_regions)
     
 # launch an instance
 #    start_time = time.time()
@@ -110,10 +110,10 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1
 # get the status of an instance
 # return (status,public_dns,url)
 # ----------------------------------------------------------------
-def instance_status(instance_id, region_name):
+def instance_status(instance_id, region_name, supported_regions):
 
 # get the region
-    region 	= aws.get_region(region_name)
+    region 	= aws.get_region(region_name, supported_regions)
 # get the state    
     try: 
         instance 	= aws.get_instance(instance_id,region)
@@ -170,9 +170,9 @@ def stop_instance(instance_id, region):
 # ----------------------------------------------------------------
 # terminte an instance
 # ----------------------------------------------------------------
-def terminate_instance(instance_id, region_name):
+def terminate_instance(instance_id, region_name, supported_regions):
     
-    region = aws.get_region(region_name)
+    region = aws.get_region(region_name, supported_regions)
     # get the state
     try:
         state = aws.state(instance_id,region)
