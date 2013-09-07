@@ -79,10 +79,7 @@ def terminate_all(instances=None,regions='all'):
 # update the instance
                 instance.terminate()
 
-def get_region(region_name, supported_regions):
-    
-    if region_name not in supported_regions:
-        raise NameError('region '+region_name+' not supported')
+def get_region(region_name):
     
     regions_ = boto.ec2.regions()
     for region in regions_:

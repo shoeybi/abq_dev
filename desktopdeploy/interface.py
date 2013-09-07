@@ -75,7 +75,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 # pswd:  password of the owner 
 #  
 # ----------------------------------------------------------------
-def get_instance_id(region_name, instance_type, os, company_name, uname, supported_regions, pswd='1234'):
+def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1234'):
     
 # AMI's
 
@@ -90,7 +90,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, support
     ami 	= ami_dic[(region_name,os)]
     
 # get the region
-    region 	= aws.get_region(region_name, supported_regions)
+    region 	= aws.get_region(region_name)
     
 # launch an instance
 #    start_time = time.time()
@@ -110,10 +110,10 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, support
 # get the status of an instance
 # return (status,public_dns,url)
 # ----------------------------------------------------------------
-def instance_status(instance_id, region_name, supported_regions):
+def instance_status(instance_id, region_name):
 
 # get the region
-    region 	= aws.get_region(region_name, supported_regions)
+    region 	= aws.get_region(region_name)
 # get the state    
     try: 
         instance 	= aws.get_instance(instance_id,region)
@@ -170,9 +170,9 @@ def stop_instance(instance_id, region):
 # ----------------------------------------------------------------
 # terminte an instance
 # ----------------------------------------------------------------
-def terminate_instance(instance_id, region_name, supported_regions):
+def terminate_instance(instance_id, region_name):
     
-    region = aws.get_region(region_name, supported_regions)
+    region = aws.get_region(region_name)
     # get the state
     try:
         state = aws.state(instance_id,region)
@@ -196,7 +196,7 @@ def make_company(company_name, supported_regions):
         os.makedirs(company_dir+'/sessions')
     key_name 	= company_name
     for region_name in supported_regions:
-        region   	= aws.get_region(region_name, supported_regions)
+        region   	= aws.get_region(region_name)
         aws.create_key(key_name, region)
 # ----------------------------------------------------------------
 # remove company
@@ -205,7 +205,7 @@ def remove_company(company_name, supported_regions):
     
     key_name 	= company_name
     for region_name in supported_regions:
-        region   	= aws.get_region(region_name, supported_regions)
+        region   	= aws.get_region(region_name)
         aws.remove_key(key_name, region)
     
     company_dir = companies_root+'/'+company_name 
