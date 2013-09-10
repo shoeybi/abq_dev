@@ -23,13 +23,29 @@ if [ ! -d "$downloadDir" ]; then
     mkdir $downloadDir ;
 fi
 cd $downloadDir ;
-if [ ! -e nomachine-workstation_4.0.291_2_beta1_amd64.deb ]; then
-    wget http://64.34.173.142/download/4.0/Linux/nomachine-workstation_4.0.291_2_beta1_amd64.deb ;
+
+if [ ! -e nomachine-workstation_4.0.312_7_beta2_amd64.deb ]; then
+    wget http://64.34.173.142/download/4.0/Linux/nomachine-workstation_4.0.312_7_beta2_amd64.deb
 fi
+
+#if [ ! -e nomachine-enterprise-server_4.0.312_7_beta2_amd64.deb ]; then
+#    wget http://64.34.173.142/download/4.0/Linux/nomachine-enterprise-server_4.0.312_7_beta2_amd64.deb
+#fi
+
+if [ ! -e nomachine-portal-server_4.0.312_8_beta2_amd64.deb ]; then
+    wget http://64.34.173.142/download/4.0/Linux/nomachine-portal-server_4.0.312_8_beta2_amd64.deb ;
+fi
+
+
+
 if [ ! -d /usr/NX ]; then
-    sudo dpkg -i nomachine-workstation_4.0.291_2_beta1_amd64.deb ;
+    
+    sudo dpkg -i nomachine-workstation_4.0.312_7_beta2_amd64.deb ;
+    sudo dpkg -i nomachine-portal-server_4.0.312_8_beta2_amd64.deb ;
+#    sudo dpkg -i nomachine-portal-server_4.0.312_8_beta2_amd64.deb ;
 ## enable password for users
-    sudo perl -p -i -e 's/EnablePasswordDB 0/EnablePasswordDB 1/' /usr/NX/etc/server.cfg
+
+#    sudo perl -p -i -e 's/EnablePasswordDB 0/EnablePasswordDB 1/' /usr/NX/etc/server.cfg 
     sudo service nxserver restart
 fi
 

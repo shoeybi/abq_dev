@@ -16,6 +16,49 @@ threading._DummyThread._Thread__stop = lambda x: 42
 
 current_dir     = aws.current_dir
 companies_root  = aws.companies_root
+
+def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.small'):
+    
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
+             ('us-west-1','ubuntu12.04') : 'ami-c4072e81'}
+
+# get the AMI
+    ami 	= ami_dic[(region_name,ops)]
+    
+# get the region
+    region 	= aws.get_region(region_name)
+
+# launch an instance
+    instance_id = aws.launch(instance_type = instance_type, 
+                             ami 	   = ami, 
+                             key_name      = company_name, 
+                             region        = region )
+    
+    myconn 	= connect.Connection(instance_id,region,verbose=0)
+# prepare nx
+    current_dir = os.path.dirname(os.path.abspath(__file__))    
+    myconn.run_at(current_dir+'/prepAWS_NX4beta.sh',
+                  input_type='script',
+                  wait_for_output=True,
+                  print_stdout=True )
+    
+# wait for nx
+    nx.wait_for_nx(myconn,verbose=1)
+
+# get instance
+    instance    = aws.get_instance(instance_id,region)
+
+# make ami
+    ami_id 	= instance.create_image('workstation nx-enabled instance')
+    
+# print
+    print 'instance AMI with nx is '+ami_id
+
+# kill instance
+#    aws.terminate(instance_id,region)
+    return ami_id
+    
+    
 # ----------------------------------------------------------------
 # prepare an instance. This is part of the background in
 # get_instance_id
@@ -78,13 +121,12 @@ def prepare_instance(uname, pswd, instance_id, region):
 def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1234'):
     
 # AMI's
-
-#    ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
-#             ('us-west-1','ubuntu12.04') : 'ami-c4072e81'}
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
+             ('us-west-1','ubuntu12.04') : 'ami-b43306f1'}
 # ami-d8fdd79d is a prepared west UBUNTU, replacing ami-c4072e81
     
-    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d',
-                  ('us-east-1','ubuntu12.04') : 'ami-23d9a94a'}
+#    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d',
+#                  ('us-east-1','ubuntu12.04') : 'ami-23d9a94a'}
 
 # get the AMI
     ami 	= ami_dic[(region_name,os)]

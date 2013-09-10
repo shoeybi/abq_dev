@@ -27,7 +27,7 @@ def working(connection,verbose=0):
     working = False
     for line in out_lines:
 #oldNx  if re.search("^NX>\s110\sNX\sServer\sis\srunning\.$",line):
-        if re.search("^NX>\s110\sEnabled\sservice:\snxserver\.$",line):
+        if re.search("NX>\s161\sEnabled\sservice:\snxhtd\.$",line):
             working = True
 
 # write the output if needed
