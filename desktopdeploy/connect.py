@@ -22,10 +22,10 @@ class Connection:
         else:
             raise NameError('instance '+instance_id+' is down')
 
-# get public dns
+# get ip address
         instance 	     = aws.get_instance(instance_id,region=region)
         instance.update()
-    	self.public_dns      = instance.public_dns_name.strip()
+    	self.ip_address      = instance.ip_address.strip()
         self.key_name        = instance.key_name.strip()
 
 # initaite a subprocess ssh connection                

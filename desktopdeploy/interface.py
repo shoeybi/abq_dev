@@ -49,7 +49,7 @@ def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.sma
     instance    = aws.get_instance(instance_id,region)
 
 # make ami
-    ami_id 	= instance.create_image('workstation nx-enabled instance')
+    ami_id 	= instance.create_image('workstation nx-enabled instance 2')
     
 # print
     print 'instance AMI with nx is '+ami_id
@@ -69,9 +69,14 @@ def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.sma
 #  
 # ----------------------------------------------------------------
 
-def prepare_instance(uname, pswd, instance_id, region):
+def prepare_instance(uname, pswd, instance_id, region,ip_address):
 
-# establish a connection
+# associate ip
+    if aws.instance_is_running(instance_id,region) :
+        region.associate_address(instance_id   = instance_id, 
+                                 public_ip     = ip_address )
+
+    # establish a connection
 #    start_time = time.time()
     myconn = connect.Connection(instance_id,region,verbose=0)
 #    print 'establish connection',time.time()-start_time
@@ -122,7 +127,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1
     
 # AMI's
     ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
-             ('us-west-1','ubuntu12.04') : 'ami-b43306f1'}
+             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
 # ami-d8fdd79d is a prepared west UBUNTU, replacing ami-c4072e81
     
 #    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d',
@@ -136,21 +141,25 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1
     
 # launch an instance
 #    start_time = time.time()
-    instance_id = aws.launch(instance_type = instance_type, 
+    ip_address  = region.allocate_address().public_ip
+    print ip_address
+    instance    = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
                              key_name      = company_name, 
                              region        = region )
-    
+    print instance.id
 #    print 'launch time',time.time()-start_time
+# associate ip_address
 
+# run a thread for instance preparation
     thread 	= threading.Thread(target = prepare_instance, 
-                              args   = (uname, pswd, instance_id, region))
+                              args   = (uname, pswd, instance.id, region,ip_address))
     thread.start()
-    return instance_id
+    return instance.id,ip_address
     
 # ----------------------------------------------------------------
 # get the status of an instance
-# return (status,public_dns,url)
+# return (status,ip_address,url)
 # ----------------------------------------------------------------
 def instance_status(instance_id, region_name):
 
@@ -160,7 +169,7 @@ def instance_status(instance_id, region_name):
     try: 
         instance 	= aws.get_instance(instance_id,region)
         state    	= instance.state.strip()
-        public_dns	= instance.public_dns_name.strip()
+        ip_address	= instance.ip_address.strip()
     except:
         return ('terminated','None','None')
     
@@ -173,8 +182,9 @@ def instance_status(instance_id, region_name):
     if state =='running':
         if aws.ssh_working_quick(instance_id,region):
             port = '4443' 
-            url  = 'https://'+public_dns+':'+port
-            return ('ready',public_dns,url)
+            port = '4080' 
+            url  = 'http://'+ip_address+':'+port
+            return ('ready',ip_address,url)
     
     return ('starting up','None','None')
 
@@ -217,12 +227,14 @@ def terminate_instance(instance_id, region_name):
     region = aws.get_region(region_name)
     # get the state
     try:
-        state = aws.state(instance_id,region)
+        state      = aws.state(instance_id,region)
+        ip_address = aws.ip_address(instance_id,region)
     except:
         return
     
     if state in ['running','pending','stopped','stopping']:
         aws.terminate(instance_id,region)
+        region.release_address(ip_address)
     else:
         print 'Warning in terminte_instance! state is '+state
 

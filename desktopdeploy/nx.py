@@ -154,7 +154,7 @@ def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='
     replace_items={
         'REPLACE_USER'       : uname,
         'REPLACE_PASSWORD'   : scrambled,
-        'REPLACE_PUBLIC_DNS' : connection.public_dns,
+        'REPLACE_PUBLIC_DNS' : connection.ip_address,
         'REPLACE_WINDOW_MODE': window_mode,
         'REPLACE_WIDTH'      : width,
         'REPLACE_HEIGHT'     : height
@@ -191,16 +191,18 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
     else: 
         print_stdout=False 
 
-# prepare a command
-    command 		= '(sleep 5; echo '+pswd+'; sleep 5; echo '+pswd+\
-        		' ) | sudo /usr/NX/bin/nxserver --system --useradd '+uname
-    
-# run the command
+# add user to system
+    command 		= '(sleep 2; echo '+pswd+'; sleep 2; echo '+pswd+\
+            ' ) | sudo adduser --gecos \'\' --shell /bin/bash '+uname    
+    dummy_lines        	= connection.run_at(command,print_stdout=print_stdout)
+
+# add user to NX
+    command 		= 'sudo /usr/NX/bin/nxserver --useradd '+uname    
     out_lines 		= connection.run_at(command,print_stdout=print_stdout)
 
 # change the default to bash
-    command		= 'sudo chsh -s /bin/bash '+uname
-    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+#    command		= 'sudo chsh -s /bin/bash '+uname
+#    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
 # copy the authorized keys
     command		= 'sudo cp /home/ubuntu/.ssh/authorized_keys /home/'+uname+'/.ssh;'+\

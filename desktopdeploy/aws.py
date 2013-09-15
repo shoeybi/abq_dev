@@ -53,6 +53,7 @@ def query(instances=None,regions='all'):
                 print 'region name ', region.name
                 print 'reservation ', reservation.id
                 print 'public dns  ', instance.public_dns_name
+                print 'ip address  ', instance.ip_address
                 print 'state       ', instance.state 
                 print 'kernel      ', instance.kernel
                 print 'launch time ', instance.launch_time
@@ -77,7 +78,12 @@ def terminate_all(instances=None,regions='all'):
 # loop through all instances in a reservation
             for instance in instances_ :
 # update the instance
+                ip_address = instance.ip_address
                 instance.terminate()
+                try:
+                    conn.release_address(ip_address)
+                except:
+                    pass
 
 def get_region(region_name):
     
@@ -231,7 +237,7 @@ def launch(instance_type, ami, key_name, region ):
                                       key_name=key_name).instances[0]
 
 # return the id and regionn
-    return instance.id
+    return instance
 
 # ----------------------------------------------------------------
 # get the instance given its id and region
@@ -314,14 +320,14 @@ def state(instance_id,region):
         return 'invalid'
 
 # ----------------------------------------------------------------
-# get the public_dns of an instance using the instance_id
+# get the ip address of an instance using the instance_id
 # ----------------------------------------------------------------
-def public_dns(instance_id,region):
+def ip_address(instance_id,region):
 # get connection
     try:
         instance = get_instance(instance_id,region=region)
         instance.update()
-        return instance.public_dns_name.strip()
+        return instance.ip_address.strip()
 
     except NameError:
         return 'invalid'
@@ -350,7 +356,7 @@ def instance_is_running(instance_id,region,verbose=0):
         elif (state_ == 'running'):
             if i > 1:
                 if verbose:
-                    print 'running! ip =',public_dns(instance_id,region)
+                    print 'running! ip =',ip_address(instance_id,region)
                     sys.stdout.flush()
             return True
         else:
@@ -396,7 +402,7 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
     instance = get_instance(instance_id,region)
 
 # get key and ip address
-    public_dns    = instance.public_dns_name
+    ip_address    = instance.ip_address
     key_name      = instance.key_name
     key_dir  	  = companies_root+'/'+key_name
     key_filename  = key_dir+'/'+key_name+'.pem'
@@ -407,7 +413,7 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
 
 # prepare ssh command
     uname = 'ubuntu' 
-    account  = uname+'@'+public_dns
+    account  = uname+'@'+ip_address
     # persist
     if persist:
         persist_ = '-o "ControlPersist 600" '
@@ -415,6 +421,8 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
         persist_ = ''
     ssh_command = \
         'ssh -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" '+\
+        '-o "UserKnownHostsFile /dev/null" '+\
+        '-o "LogLevel QUIET" '+\
         '-o "ConnectTimeout '+str(time_out)+'" '+persist_+\
         '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" -i '+\
         key_filename+' '+account
@@ -440,7 +448,12 @@ def ssh_is_running(instance_id,region,verbose=0):
             print 'waiting for ssh ',
         proc = ssh(instance_id,region,command='echo working')
         out_lines = proc.stdout.readlines()
-        if out_lines[-1].strip() == 'working':
+
+        try:
+            out_phrase = out_lines[-1].strip()
+        except:
+            out_phrase = 'not working'
+        if out_phrase == 'working':
             if verbose:
                 print ' '
                 sys.stdout.flush()

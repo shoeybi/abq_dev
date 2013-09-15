@@ -11,7 +11,7 @@ sudo -E apt-get -y upgrade ;
 ## get ssh server ( should be there already )
 sudo -E apt-get -y install openssh-server ;
 ## get the graphical interface tools (gnome) 
-#sudo -E apt-get -y install gnome-session ;
+sudo -E apt-get -y install gnome-session ;
 sudo -E apt-get -y install ubuntu-desktop ;
 #sudo -E apt-get -y install compizconfig-settings-manager ;
 sudo -E apt-get -y install gnome-session-fallback ;
@@ -24,24 +24,24 @@ if [ ! -d "$downloadDir" ]; then
 fi
 cd $downloadDir ;
 
-if [ ! -e nomachine-workstation_4.0.312_7_beta2_amd64.deb ]; then
-    wget http://64.34.173.142/download/4.0/Linux/nomachine-workstation_4.0.312_7_beta2_amd64.deb
+if [ ! -e nomachine-workstation_4.0.314_1_beta2_amd64.deb ]; then
+    wget http://64.34.173.142/download/4.0/Linux/nomachine-workstation_4.0.314_1_beta2_amd64.deb
 fi
 
 #if [ ! -e nomachine-enterprise-server_4.0.312_7_beta2_amd64.deb ]; then
 #    wget http://64.34.173.142/download/4.0/Linux/nomachine-enterprise-server_4.0.312_7_beta2_amd64.deb
 #fi
 
-if [ ! -e nomachine-portal-server_4.0.312_8_beta2_amd64.deb ]; then
-    wget http://64.34.173.142/download/4.0/Linux/nomachine-portal-server_4.0.312_8_beta2_amd64.deb ;
+if [ ! -e nomachine-portal-server_4.0.314_1_beta2_amd64.deb ]; then
+    wget http://64.34.173.142/download/4.0/Linux/nomachine-portal-server_4.0.314_1_beta2_amd64.deb ;
 fi
 
 
 
 if [ ! -d /usr/NX ]; then
     
-    sudo dpkg -i nomachine-workstation_4.0.312_7_beta2_amd64.deb ;
-    sudo dpkg -i nomachine-portal-server_4.0.312_8_beta2_amd64.deb ;
+    sudo dpkg -i nomachine-workstation_4.0.314_1_beta2_amd64.deb ;
+    sudo dpkg -i nomachine-portal-server_4.0.314_1_beta2_amd64.deb ;
 #    sudo dpkg -i nomachine-portal-server_4.0.312_8_beta2_amd64.deb ;
 ## enable password for users
 
