@@ -489,7 +489,13 @@ def ssh_working_quick(instance_id,region,verbose=0):
     proc = ssh(instance_id,region,
                command='echo working',time_out=1)
     out_lines = proc.stdout.readlines()
-    if out_lines[-1].strip() == 'working':
+    
+    try:
+        out_phrase = out_lines[-1].strip()
+    except:
+        out_phrase = 'not working'
+
+    if out_phrase == 'working':
         return True
     else: 
         return False
