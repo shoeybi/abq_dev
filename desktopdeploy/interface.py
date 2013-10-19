@@ -123,11 +123,15 @@ def prepare_instance(uname, pswd, instance_id, region,ip_address):
 # pswd:  password of the owner 
 #  
 # ----------------------------------------------------------------
-def get_instance_id(region_name, instance_type, os, company_name, uname, pswd='1234'):
+def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
     
 # AMI's
     ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
-             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
+             ('us-west-1','ubuntu12.04') : 'ami-aa182fef'}
+#             ('us-west-1','ubuntu12.04') : 'ami-b4d3e6f1'}
+#             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
+#
+#
 # ami-d8fdd79d is a prepared west UBUNTU, replacing ami-c4072e81
     
 #    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d',

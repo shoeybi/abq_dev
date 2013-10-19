@@ -161,7 +161,7 @@ def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='
       }
 # get file names
     session_dir = companies_root+'/'+connection.key_name+'/sessions'
-    master_file = current_dir+'/amazon.nxs'
+    master_file = current_dir+'/model.nxs'
     session_file_name = session_dir+'/'+connection.instance_id+'_'+uname+'.nxs'
 
 #   open an output file
