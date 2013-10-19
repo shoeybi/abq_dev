@@ -15,6 +15,7 @@ class Connection:
         self.instance_id     = instance_id
         self.region          = region
 	self.verbose         = verbose
+        self.shepherd_proc   = None
 
 # check the status of the instance        
         if aws.instance_is_running(instance_id,region,verbose=verbose):
@@ -29,7 +30,6 @@ class Connection:
         self.key_name        = instance.key_name.strip()
 
 # initaite a subprocess ssh connection           
-        self.shepherd_proc.returncode = None
         if aws.ssh_is_running(instance_id,region,verbose):
             self.shepherd_proc   = aws.ssh(instance_id,region,persist=True)
 
@@ -37,6 +37,9 @@ class Connection:
 # get the state of connection by status of shepherd proc 
 # ----------------------------------------------------------------   
     def connected(self):
+        
+        if self.shepherd_proc is None:
+            return False
         
         if self.shepherd_proc.returncode is None:
             return True
