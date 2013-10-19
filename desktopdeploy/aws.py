@@ -409,7 +409,7 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
     try:
         with open(key_filename): pass
     except IOError:
-        raise NameError('cannot find '+filename)
+        raise NameError('cannot find '+key_filename)
 
 # prepare ssh command
     uname = 'ubuntu' 

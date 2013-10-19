@@ -146,12 +146,12 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # launch an instance
 #    start_time = time.time()
     ip_address  = region.allocate_address().public_ip
-    print ip_address
+#    print ip_address
     instance    = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
                              key_name      = company_name, 
                              region        = region )
-    print instance.id
+#    print instance.id
 #    print 'launch time',time.time()-start_time
 # associate ip_address
 
