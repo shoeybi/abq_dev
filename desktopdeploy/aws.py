@@ -253,7 +253,6 @@ def get_instance(instance_id,region):
         instance = conn.get_all_instances(
             instance_ids=instance_id
             )[0].instances[0]
-        print instance.id,'haha'
     except (boto.exception.EC2ResponseError,IndexError):
         raise NameError('instance id '+instance_id+' was not found')
 
