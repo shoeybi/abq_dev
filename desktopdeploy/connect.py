@@ -28,7 +28,8 @@ class Connection:
     	self.ip_address      = instance.ip_address.strip()
         self.key_name        = instance.key_name.strip()
 
-# initaite a subprocess ssh connection                
+# initaite a subprocess ssh connection           
+        self.shepherd_proc.returncode = None
         if aws.ssh_is_running(instance_id,region,verbose):
             self.shepherd_proc   = aws.ssh(instance_id,region,persist=True)
 
