@@ -238,6 +238,7 @@ def terminate_instance(instance_id, region_name):
     
     if state in ['running','pending','stopped','stopping']:
         aws.terminate(instance_id,region)
+        region.disassociate_address(ip_address)
         region.release_address(ip_address)
     else:
         print 'Warning in terminte_instance! state is '+state

@@ -81,6 +81,7 @@ def terminate_all(instances=None,regions='all'):
                 ip_address = instance.ip_address
                 instance.terminate()
                 try:
+                    conn.disassociate_address(ip_address)
                     conn.release_address(ip_address)
                 except:
                     pass
