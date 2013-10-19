@@ -246,12 +246,14 @@ def get_instance(instance_id,region):
 
 # get the connection to the region
     conn     = region
-
+    if len(instance_id) < 5 :
+        raise NameError('instance id '+instance_id+' is invalid')
 # get the instance 
     try:
         instance = conn.get_all_instances(
             instance_ids=instance_id
             )[0].instances[0]
+        print instance.id,'haha'
     except (boto.exception.EC2ResponseError,IndexError):
         raise NameError('instance id '+instance_id+' was not found')
 
