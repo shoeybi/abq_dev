@@ -190,7 +190,6 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
         print_stdout=True 
     else: 
         print_stdout=False 
-
 # add user to system
     command 		= '(sleep 2; echo '+pswd+'; sleep 2; echo '+pswd+\
             ' ) | sudo adduser --gecos \'\' --shell /bin/bash '+uname    

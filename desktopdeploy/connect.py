@@ -31,7 +31,8 @@ class Connection:
 
 # initaite a subprocess ssh connection           
         if aws.ssh_is_running(instance_id,region,verbose):
-            self.shepherd_proc   = aws.ssh(instance_id,region,persist=True)
+            self.shepherd_proc   = True
+#            self.shepherd_proc   = aws.ssh(instance_id,region,persist=True)
 
 # ----------------------------------------------------------------
 # get the state of connection by status of shepherd proc 
@@ -40,11 +41,12 @@ class Connection:
         
         if self.shepherd_proc is None:
             return False
-        
-        if self.shepherd_proc.returncode is None:
-            return True
         else:
-            return False
+            return True
+#        if self.shepherd_proc.returncode is None:
+#            return True
+#        else:
+#            return False
 
 # ----------------------------------------------------------------
 # connect by initiating a shepherd ssh process 
@@ -56,11 +58,12 @@ class Connection:
 
 # initaite a subprocess ssh connection
         if aws.ssh_is_running(self.instance_id,self.region,self.verbose):
-            self.shepherd_proc  = aws.ssh(self.instance_id,self.region,persist=True)
+            self.shepherd_proc = True
+#            self.shepherd_proc  = aws.ssh(self.instance_id,self.region,persist=True)
 
 # check if ssh is alive            
         if not self.connected():
-            raise NameError('ssh to '+instance_id+' died')
+            raise NameError('ssh to '+self.instance_id+' died')
             
 
 # ----------------------------------------------------------------
@@ -72,8 +75,9 @@ class Connection:
             return
 # terminate the current process        
 
-        self.shepherd_proc.terminate()
-        self.shepherd_proc.wait()
+#        self.shepherd_proc.terminate()
+#        self.shepherd_proc.wait()
+        self.shepherd_proc = None 
 # check if ssh is alive            
         if self.connected():
             raise NameError('ssh to '+self.instance_id+' is alive')
@@ -84,12 +88,14 @@ class Connection:
     def reconnect(self):       
 
 # terminate the current process 
-        self.shepherd_proc.terminate()
-        self.shepherd_proc.wait()
+#        self.shepherd_proc.terminate()
+#        self.shepherd_proc.wait()
 
 # reconnect the shepherd if not alive
         if aws.ssh_is_running(self.instance_id,self.region,self.verbose):
-            self.shepherd_proc  = aws.ssh(self.instance_id,self.region,persist=True)    
+#            self.shepherd_proc  = aws.ssh(self.instance_id,self.region,persist=True)    
+            self.shepherd_proc  = True
+            
 # ----------------------------------------------------------------
 # run a command or script at node
 # ----------------------------------------------------------------   
