@@ -187,7 +187,7 @@ def create_key(key_name, region):
     try:
         with open(filename): pass
     except IOError:
-        command = '/usr/bin/ssh-keygen -N "" -m PEM -f '+filename
+        command = '/usr/bin/ssh-keygen -N "" -m PEM -f '+filename+' ;'+'chmod 400 '+filename+' ;'
         proc  = subprocess.Popen(command,
                                  shell=True,
                                  stdin=subprocess.PIPE,

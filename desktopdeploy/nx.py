@@ -204,9 +204,9 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
 #    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
 # copy the authorized keys
-    command		= 'sudo cp /home/ubuntu/.ssh/authorized_keys /home/'+uname+'/.ssh;'+\
-                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.ssh/authorized_keys'
-    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
+#    command		= 'sudo cp /home/ubuntu/.ssh/authorized_keys /home/'+uname+'/.ssh;'+\
+#                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.ssh/authorized_keys'
+#    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
 # add as a sudoer    
     if sudoer:

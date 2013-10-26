@@ -93,7 +93,10 @@ def prepare_instance(uname, pswd, instance_id, region,ip_address):
 
 # add user 
 #    start_time = time.time()
+
     nx.add_user(uname,pswd,myconn,sudoer=True,verbose=0)
+
+
 #    print 'add user',time.time()-start_time
 # install OpenFoam
 #    myconn.run_at('installOpenFoam.sh',
