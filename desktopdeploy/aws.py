@@ -481,19 +481,21 @@ def ssh_working_quick(instance_id,region,verbose=0):
     update_time  = 500
 
 # initialize if needed
-    if ( not hasattr(ssh_working_quick, "last_time") or  (time.time() - ssh_working_quick.last_time) > update_time ) : 
+#    if ( not hasattr(ssh_working_quick, "last_time") or  (time.time() - ssh_working_quick.last_time) > update_time ) : 
 
-        proc0 = ssh(instance_id,region,
-                    command='exit',time_out=1,persist=True)
-        ssh_working_quick.last_time = time.time()
+#        proc0 = ssh(instance_id,region,
+#                    command='exit',time_out=1,persist=True)
+#        ssh_working_quick.last_time = time.time()
 
 # ssh
     proc = ssh(instance_id,region,
-               command='echo working',time_out=1)
+               command='echo working',time_out=10)
     out_lines = proc.stdout.readlines()
-    
+    print "outlines:", out_lines
     try:
+        print '>stripping'
         out_phrase = out_lines[-1].strip()
+        print "out_phrase", out_phrase
     except:
         out_phrase = 'not working'
 

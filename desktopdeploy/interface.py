@@ -8,11 +8,12 @@
 import aws
 import connect
 import nx
-import threading
+import sys
+#import threading
 import os
 import time
 import shutil
-threading._DummyThread._Thread__stop = lambda x: 42
+#threading._DummyThread._Thread__stop = lambda x: 42
 
 current_dir     = aws.current_dir
 companies_root  = aws.companies_root
@@ -29,6 +30,7 @@ def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.sma
     region 	= aws.get_region(region_name)
 
 # launch an instance
+    
     instance_id = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
                              key_name      = company_name, 
@@ -43,7 +45,7 @@ def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.sma
                   print_stdout=True )
     
 # wait for nx
-    nx.wait_for_nx(myconn,verbose=1)
+    nx.wait_for_nx(myconn,verbose=0)
 
 # get instance
     instance    = aws.get_instance(instance_id,region)
@@ -94,6 +96,8 @@ def prepare_instance(uname, pswd, instance_id, region,ip_address):
 # add user 
 #    start_time = time.time()
 
+    print instance_id,region,uname,pswd
+    
     nx.add_user(uname,pswd,myconn,sudoer=True,verbose=0)
 
 
@@ -130,7 +134,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
     
 # AMI's
     ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
-             ('us-west-1','ubuntu12.04') : 'ami-aa182fef'}
+             ('us-west-1','ubuntu12.04') : 'ami-cc0d3b89'}
 #             ('us-west-1','ubuntu12.04') : 'ami-b4d3e6f1'}
 #             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
 #
@@ -150,6 +154,8 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 #    start_time = time.time()
     ip_address  = region.allocate_address().public_ip
 #    print ip_address
+    print region_name, company_name, os, instance_type
+    sys.stdout.flush()
     instance    = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
                              key_name      = company_name, 
@@ -159,9 +165,11 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # associate ip_address
 
 # run a thread for instance preparation
-    thread 	= threading.Thread(target = prepare_instance, 
-                              args   = (uname, pswd, instance.id, region,ip_address))
-    thread.start()
+#    thread 	= threading.Thread(target = prepare_instance, 
+#                              args   = (uname, pswd, instance.id, region,ip_address))
+#    thread.start()
+    
+    prepare_instance(uname, pswd, instance.id, region,ip_address)
     return instance.id,ip_address
     
 # ----------------------------------------------------------------
@@ -170,6 +178,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # ----------------------------------------------------------------
 def instance_status(instance_id, region_name):
 
+    print 'in instance status'
 # get the region
     region 	= aws.get_region(region_name)
 # get the state    
@@ -177,7 +186,9 @@ def instance_status(instance_id, region_name):
         instance 	= aws.get_instance(instance_id,region)
         state    	= instance.state.strip()
         ip_address	= instance.ip_address.strip()
+        print ' > state:',state
     except:
+        print ' > could not make it to state'
         return ('terminated','None','None')
     
     if state in ['terminated','shutting-down','invalid'] :
@@ -187,7 +198,9 @@ def instance_status(instance_id, region_name):
         return ('standby','None','None')
     
     if state =='running':
+        print ' > if state was runnig, should be here'
         if aws.ssh_working_quick(instance_id,region):
+            print '  >> ssh to the instance is working'
             port = '4443' 
             port = '4080' 
             url  = 'http://'+ip_address+':'+port

@@ -189,16 +189,18 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
     if verbose:
         print_stdout=True 
     else: 
-        print_stdout=False 
+        print_stdout=False
+
+    '''
 # add user to system
     command 		= '(sleep 2; echo '+pswd+'; sleep 2; echo '+pswd+\
-            ' ) | sudo adduser --gecos \'\' --shell /bin/bash '+uname    
+        ' ) | sudo adduser --gecos \'\' --shell /bin/bash '+uname    
     dummy_lines        	= connection.run_at(command,print_stdout=print_stdout)
-
+        
 # add user to NX
     command 		= 'sudo /usr/NX/bin/nxserver --useradd '+uname    
     out_lines 		= connection.run_at(command,print_stdout=print_stdout)
-
+        
 # change the default to bash
 #    command		= 'sudo chsh -s /bin/bash '+uname
 #    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
@@ -213,7 +215,6 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
         command 	= 'sudo usermod -aG sudo '+uname
         dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
         
-
 # make a .bashrc file
     command 		= 'sudo cp ~/.bashrc /home/'+uname+'/.bashrc;'+\
                           'sudo chown '+uname+':'+uname+' /home/'+uname+'/.bashrc'
@@ -224,7 +225,26 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
 #                          'sudo echo ". /home/ubuntu/.bashrccommon" >> '+'/home/'+uname+'/.bashrc'
 #    dummy_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
+    '''
+
+# add user to system
+    command  = ''
+    command += '(sleep 2; echo '+pswd+'; sleep 2; echo '+pswd+\
+        ' ) | sudo adduser --gecos \'\' --shell /bin/bash '+uname+' ;'    
+        
+# add user to NX
+    command  += 'sudo /usr/NX/bin/nxserver --useradd '+uname+' ;'     
+        
+    if sudoer:
+        command += 'sudo usermod -aG sudo '+uname+' ;'
+        
+# make a .bashrc file
+    command 	+= 'sudo cp ~/.bashrc /home/'+uname+'/.bashrc;'+\
+                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.bashrc'
+    out_lines 	= connection.run_at(command,print_stdout=print_stdout)
+
 # check if the user is added
+
     success = False    
     for line in out_lines:
         if re.search('^NX>\s301\sUser:\s'+uname+'\senabled\sin\sthe\sNX\suser\sDB\.$', \
@@ -233,7 +253,7 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
 
     if not success and verbose:
         print 'user '+uname+' could not be added' 
-
+    
 # write the nxs file           
     if success:
         write_nxs_file(uname,pswd,connection)
