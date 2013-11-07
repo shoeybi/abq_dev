@@ -19,7 +19,7 @@ import re
 # ----------------------------------------------------------------
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-companies_root = current_dir + '/../../abq_web/site/static/companies'
+companies_root = current_dir + '/../../abq_web/site/media/companies'
 
 # ----------------------------------------------------------------
 # query shows all the instances that are currently running
