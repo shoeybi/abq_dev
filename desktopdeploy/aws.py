@@ -63,7 +63,7 @@ def query(instances=None,regions='all'):
 # ----------------------------------------------------------------
 # kills all instances
 # ----------------------------------------------------------------
-def terminate_all(instances=None,regions='all'):
+def terminate_all(instances=None,regions='all',desired_ami=None):
 # loop through all regions   
     regions_ = boto.ec2.regions()
     for region in regions_:
@@ -79,12 +79,16 @@ def terminate_all(instances=None,regions='all'):
             for instance in instances_ :
 # update the instance
                 ip_address = instance.ip_address
-                instance.terminate()
-                try:
-                    conn.disassociate_address(ip_address)
-                    conn.release_address(ip_address)
-                except:
-                    pass
+                ami_id     = instance.image_id
+                if ( ami_id == desired_ami) : 
+                    print 'killing '+instance.id
+                    instance.terminate()
+                    try:
+                        print 'releasing '+ip_address
+                        conn.disassociate_address(ip_address)
+                        conn.release_address(ip_address)
+                    except:
+                        pass
 
 def get_region(region_name):
     
