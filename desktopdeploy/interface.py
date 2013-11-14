@@ -133,8 +133,8 @@ def prepare_instance(uname, pswd, instance_id, region):
 def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
     
 # AMI's
-    ami_dic={('us-east-1','ubuntu12.04') : 'ami-23d9a94a',
-             ('us-west-1','ubuntu12.04') : 'ami-cc0d3b89'}
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-b7a184de',
+             ('us-west-1','ubuntu12.04') : 'ami-14ab9d51'}
 #             ('us-west-1','ubuntu12.04') : 'ami-b4d3e6f1'}
 #             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
 #
@@ -199,7 +199,7 @@ def instance_status(instance_id, region_name):
         return ('standby','None','None')
     
     if state =='running':
-#       print ' > if state was runnig, should be here'
+#        print ' > if state was runnig, should be here'
         if aws.ssh_working_quick(instance_id,region):
 #            print '  >> ssh to the instance is working'
             port = '4443' 
