@@ -333,7 +333,7 @@ def ip_address(instance_id,region):
     try:
         instance = get_instance(instance_id,region=region)
         instance.update()
-        return instance.ip_address.strip()
+        return instance.public_dns_name.strip()
 
     except NameError:
         return 'invalid'
@@ -408,7 +408,7 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
     instance = get_instance(instance_id,region)
 
 # get key and ip address
-    ip_address    = instance.ip_address
+    ip_address    = instance.public_dns_name
     key_name      = instance.key_name
     key_dir  	  = companies_root+'/'+key_name
     key_filename  = key_dir+'/'+key_name+'.pem'
@@ -454,7 +454,7 @@ def ssh_is_running(instance_id,region,verbose=0):
             print 'waiting for ssh ',
         proc = ssh(instance_id,region,command='echo working')
         out_lines = proc.stdout.readlines()
-
+        time.sleep(10)
         try:
             out_phrase = out_lines[-1].strip()
         except:
@@ -495,11 +495,11 @@ def ssh_working_quick(instance_id,region,verbose=0):
     proc = ssh(instance_id,region,
                command='echo working',time_out=10)
     out_lines = proc.stdout.readlines()
-    print "outlines:", out_lines
+#    print "outlines:", out_lines
     try:
-        print '>stripping'
+#        print '>stripping'
         out_phrase = out_lines[-1].strip()
-        print "out_phrase", out_phrase
+#        print "out_phrase", out_phrase
     except:
         out_phrase = 'not working'
 

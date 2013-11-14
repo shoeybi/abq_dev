@@ -9,7 +9,7 @@ import aws
 import connect
 import nx
 import sys
-#import threading
+import threading
 import os
 import time
 import shutil
@@ -71,12 +71,12 @@ def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.sma
 #  
 # ----------------------------------------------------------------
 
-def prepare_instance(uname, pswd, instance_id, region,ip_address):
+def prepare_instance(uname, pswd, instance_id, region):
 
 # associate ip
-    if aws.instance_is_running(instance_id,region) :
-        region.associate_address(instance_id   = instance_id, 
-                                 public_ip     = ip_address )
+#    if aws.instance_is_running(instance_id,region) :
+#        region.associate_address(instance_id   = instance_id, 
+#                                 public_ip     = ip_address )
 
     # establish a connection
 #    start_time = time.time()
@@ -96,9 +96,9 @@ def prepare_instance(uname, pswd, instance_id, region,ip_address):
 # add user 
 #    start_time = time.time()
 
-    print instance_id,region,uname,pswd
+#    print instance_id,region,uname,pswd
     
-    nx.add_user(uname,pswd,myconn,sudoer=True,verbose=0)
+    nx.add_user(uname,pswd,myconn,sudoer=True,webserver='127\.0\.0\.1:8080',verbose=0)
 
 
 #    print 'add user',time.time()-start_time
@@ -152,9 +152,10 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
     
 # launch an instance
 #    start_time = time.time()
-    ip_address  = region.allocate_address().public_ip
+#    ip_address  = region.allocate_address().public_ip
+
 #    print ip_address
-    print region_name, company_name, os, instance_type
+#    print region_name, company_name, os, instance_type
     sys.stdout.flush()
     instance    = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
@@ -165,12 +166,12 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # associate ip_address
 
 # run a thread for instance preparation
-#    thread 	= threading.Thread(target = prepare_instance, 
-#                              args   = (uname, pswd, instance.id, region,ip_address))
-#    thread.start()
+    thread 	= threading.Thread(target = prepare_instance, 
+                              args   = (uname, pswd, instance.id, region))
+    thread.start()
     
-    prepare_instance(uname, pswd, instance.id, region,ip_address)
-    return instance.id,ip_address
+#    prepare_instance(uname, pswd, instance.id, region)
+    return instance.id,instance.public_dns_name
     
 # ----------------------------------------------------------------
 # get the status of an instance
@@ -178,17 +179,17 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # ----------------------------------------------------------------
 def instance_status(instance_id, region_name):
 
-    print 'in instance status'
+#    print 'in instance status'
 # get the region
     region 	= aws.get_region(region_name)
 # get the state    
     try: 
         instance 	= aws.get_instance(instance_id,region)
         state    	= instance.state.strip()
-        ip_address	= instance.ip_address.strip()
-        print ' > state:',state
+        ip_address	= instance.public_dns_name.strip()
+#        print ' > state:',state
     except:
-        print ' > could not make it to state'
+#        print ' > could not make it to state'
         return ('terminated','None','None')
     
     if state in ['terminated','shutting-down','invalid'] :
@@ -198,9 +199,9 @@ def instance_status(instance_id, region_name):
         return ('standby','None','None')
     
     if state =='running':
-        print ' > if state was runnig, should be here'
+#       print ' > if state was runnig, should be here'
         if aws.ssh_working_quick(instance_id,region):
-            print '  >> ssh to the instance is working'
+#            print '  >> ssh to the instance is working'
             port = '4443' 
             port = '4080' 
             url  = 'http://'+ip_address+':'+port
@@ -211,8 +212,9 @@ def instance_status(instance_id, region_name):
 # ----------------------------------------------------------------
 # start an instance
 # ----------------------------------------------------------------
-def start_instance(instance_id, region):
+def start_instance(instance_id, region_name):
 
+    region = aws.get_region(region_name)
     # get the state
     try:
         state = aws.state(instance_id,region)
@@ -227,8 +229,9 @@ def start_instance(instance_id, region):
 # ----------------------------------------------------------------
 # stop an instance
 # ----------------------------------------------------------------
-def stop_instance(instance_id, region):
+def stop_instance(instance_id, region_name):
 
+    region = aws.get_region(region_name)
     # get the state
     try:
         state = aws.state(instance_id,region)
@@ -254,8 +257,8 @@ def terminate_instance(instance_id, region_name):
     
     if state in ['running','pending','stopped','stopping']:
         aws.terminate(instance_id,region)
-        region.disassociate_address(ip_address)
-        region.release_address(ip_address)
+#        region.disassociate_address(ip_address)
+#        region.release_address(ip_address)
     else:
         print 'Warning in terminte_instance! state is '+state
 

@@ -183,7 +183,7 @@ def write_nxs_file(uname,pswd,connection,width='1280',height='800',window_mode='
 # ----------------------------------------------------------------
 # add a user
 # ----------------------------------------------------------------   
-def add_user(uname,pswd,connection,sudoer=False,verbose=0):
+def add_user(uname,pswd,connection,sudoer=False,webserver='abaqual\.com',verbose=0):
 
 # set the vebosity
     if verbose:
@@ -237,6 +237,7 @@ def add_user(uname,pswd,connection,sudoer=False,verbose=0):
         
     if sudoer:
         command += 'sudo usermod -aG sudo '+uname+' ;'
+        command += 'sudo sed -i s/abaqual\.com/'+webserver+'/g /usr/NX/share/htdocs/nxwebplayer/html/template.html ;'
         
 # make a .bashrc file
     command 	+= 'sudo cp ~/.bashrc /home/'+uname+'/.bashrc;'+\
