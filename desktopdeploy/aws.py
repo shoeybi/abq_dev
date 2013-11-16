@@ -518,13 +518,13 @@ def ssh_working_quick_uname(instance_id,region,uname,verbose=0):
 
 # ssh
     proc = ssh(instance_id,region,
-               command='sudo /usr/NX/bin/nxserver --userlist',time_out=10)
+               command='sudo /usr/NX/bin/nxserver --userlist',
+               time_out=10,
+               persist=False)
     out_lines = proc.stdout.readlines()
-
     start_reading = False
     
     for line in out_lines:
-        print line
         if start_reading :
             matchObj = re.search('^(\S+)',line)
             if matchObj:
@@ -533,4 +533,4 @@ def ssh_working_quick_uname(instance_id,region,uname,verbose=0):
         if re.search('^Username\s+Redirected\sto$',line):
             start_reading = True
 
-        return False
+    return False
