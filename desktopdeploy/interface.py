@@ -98,7 +98,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
 #    print instance_id,region,uname,pswd
     
-    nx.add_user(userDic,myconn,webserver='www\.abaqual\.com',verbose=1)
+    nx.add_user(userDic,myconn,webserver='abaqual\.com',verbose=1)
 
 
 #    print 'add user',time.time()-start_time
