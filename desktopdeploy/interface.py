@@ -80,7 +80,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
     # establish a connection
 #    start_time = time.time()
-    myconn = connect.Connection(instance_id,region,verbose=0)
+    myconn = connect.Connection(instance_id,region,verbose=1)
 #    print 'establish connection',time.time()-start_time
 # prepare nx
 #    current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -98,7 +98,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
 #    print instance_id,region,uname,pswd
     
-    nx.add_user(uname,pswd,myconn,sudoer=True,webserver='127\.0\.0\.1:8080',verbose=0)
+    nx.add_user(uname,pswd,myconn,sudoer=True,webserver='www\.abaqual\.com',verbose=1)
 
 
 #    print 'add user',time.time()-start_time
@@ -133,8 +133,8 @@ def prepare_instance(uname, pswd, instance_id, region):
 def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
     
 # AMI's
-    ami_dic={('us-east-1','ubuntu12.04') : 'ami-b7a184de',
-             ('us-west-1','ubuntu12.04') : 'ami-14ab9d51'}
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-7f507416',
+             ('us-west-1','ubuntu12.04') : 'ami-2e99af6b'}
 #             ('us-west-1','ubuntu12.04') : 'ami-b4d3e6f1'}
 #             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
 #

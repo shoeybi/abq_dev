@@ -428,11 +428,13 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
     ssh_command = \
         'ssh -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" '+\
         '-o "UserKnownHostsFile /dev/null" '+\
-        '-o "LogLevel QUIET" '+\
         '-o "ConnectTimeout '+str(time_out)+'" '+persist_+\
-        '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" -i '+\
-        key_filename+' '+account
-# launch a ssh subprocess    
+        '-i '+key_filename+' '+account
+#        '-o "LogLevel QUIET" '+\
+#        '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" '+\
+# launch a ssh subprocess 
+    print ssh_command+' '+command
+    sys.stdout.flush()
     proc  = subprocess.Popen(ssh_command+' '+command,
                                 shell=True,
                                 stdin=subprocess.PIPE,
@@ -454,6 +456,7 @@ def ssh_is_running(instance_id,region,verbose=0):
             print 'waiting for ssh ',
         proc = ssh(instance_id,region,command='echo working')
         out_lines = proc.stdout.readlines()
+        print out_lines
         time.sleep(10)
         try:
             out_phrase = out_lines[-1].strip()
