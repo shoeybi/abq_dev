@@ -510,3 +510,27 @@ def ssh_working_quick(instance_id,region,verbose=0):
         return True
     else: 
         return False
+
+# ----------------------------------------------------------------
+# wait for an instance to run
+# ----------------------------------------------------------------
+def ssh_working_quick_uname(instance_id,region,uname,verbose=0):
+
+# ssh
+    proc = ssh(instance_id,region,
+               command='sudo /usr/NX/bin/nxserver --userlist',time_out=10)
+    out_lines = proc.stdout.readlines()
+
+    start_reading = False
+    
+    for line in out_lines:
+        print line
+        if start_reading :
+            matchObj = re.search('^(\S+)',line)
+            if matchObj:
+                if matchObj.group(1) == uname:
+                    return True
+        if re.search('^Username\s+Redirected\sto$',line):
+            start_reading = True
+
+        return False

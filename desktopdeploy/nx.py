@@ -262,6 +262,61 @@ def add_user(uname,pswd,connection,sudoer=False,webserver='abaqual\.com',verbose
     return success
 
 # ----------------------------------------------------------------
+# add a user
+# ----------------------------------------------------------------   
+def add_users(userDic,connection,webserver='abaqual\.com',verbose=0):
+
+# set the vebosity
+    if verbose:
+        print_stdout=True 
+    else: 
+        print_stdout=False
+
+# add user to system
+    command  = ''
+    command += 'sudo sed -i s/abaqual\.com/'+webserver+'/g /usr/NX/share/htdocs/nxwebplayer/html/template.html ;'
+
+    for uname in userDic:
+        pswd     = userDic[uname][0] 
+        sudoer   = userDic[uname][1] 
+        command += '(sleep 2; echo '+pswd+'; sleep 2; echo '+pswd+\
+            ' ) | sudo adduser --gecos \'\' --shell /bin/bash '+uname+' ;'    
+        
+# add user to NX
+        command  += 'sudo /usr/NX/bin/nxserver --useradd '+uname+' ;'     
+# make a .bashrc file
+        command  += 'sudo cp ~/.bashrc /home/'+uname+'/.bashrc;'+\
+                          'sudo chown '+uname+':'+uname+' /home/'+uname+'/.bashrc ;'
+        
+        if sudoer:
+            command += 'sudo usermod -aG sudo '+uname+' ;'
+
+    out_lines 	= connection.run_at(command,print_stdout=print_stdout)
+
+# check if the user is added
+    
+    success_all = True
+    for uname in userDic:
+        success = False    
+        for line in out_lines:
+            if re.search('^NX>\s301\sUser:\s'+uname+'\senabled\sin\sthe\sNX\suser\sDB\.$', \
+                         line):
+                success = True
+
+        if not success and verbose:
+            print 'user '+uname+' could not be added' 
+    
+# write the nxs file           
+        if success:
+            pswd  = userDic[uname][0] 
+            write_nxs_file(uname,pswd,connection)
+        
+        success_all = success_all and success
+        
+    return success_all
+
+
+# ----------------------------------------------------------------
 # delete a user
 # ----------------------------------------------------------------   
 def del_user(uname,connection,verbose=0):

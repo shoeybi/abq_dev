@@ -9,7 +9,7 @@ import aws
 import connect
 import nx
 import sys
-import threading
+#import threading
 import os
 import time
 import shutil
@@ -98,7 +98,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
 #    print instance_id,region,uname,pswd
     
-    nx.add_user(uname,pswd,myconn,sudoer=True,webserver='www\.abaqual\.com',verbose=1)
+    nx.add_user(userDic,myconn,webserver='www\.abaqual\.com',verbose=1)
 
 
 #    print 'add user',time.time()-start_time
@@ -110,6 +110,31 @@ def prepare_instance(uname, pswd, instance_id, region):
 
 # disconnect
     myconn.disconnect()
+
+# ----------------------------------------------------------------
+# prepare an instance. This is part of the background in
+# get_instance_id
+# 
+# 
+# uname: username of the owner
+# pswd:  password of the owner 
+#  
+# ----------------------------------------------------------------
+
+def add_users(userDic, instance_id, region_name):
+
+# get the region
+    region 	= aws.get_region(region_name)
+
+# establish a connection
+    myconn = connect.Connection(instance_id,region,verbose=1)
+
+# add user 
+    nx.add_users(userDic,myconn,webserver='www\.abaqual\.com',verbose=1)
+
+# disconnect
+    myconn.disconnect()
+
 
 # ----------------------------------------------------------------
 # launch an prepare an instance, then return the instance id
@@ -130,19 +155,11 @@ def prepare_instance(uname, pswd, instance_id, region):
 # pswd:  password of the owner 
 #  
 # ----------------------------------------------------------------
-def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
+def get_instance_id(region_name, instance_type, os, company_name):
     
 # AMI's
     ami_dic={('us-east-1','ubuntu12.04') : 'ami-7f507416',
              ('us-west-1','ubuntu12.04') : 'ami-2e99af6b'}
-#             ('us-west-1','ubuntu12.04') : 'ami-b4d3e6f1'}
-#             ('us-west-1','ubuntu12.04') : 'ami-3cf2c779'}
-#
-#
-# ami-d8fdd79d is a prepared west UBUNTU, replacing ami-c4072e81
-    
-#    ami_dic	={('us-west-1','ubuntu12.04') : 'ami-d8fdd79d',
-#                  ('us-east-1','ubuntu12.04') : 'ami-23d9a94a'}
 
 # get the AMI
     ami 	= ami_dic[(region_name,os)]
@@ -156,7 +173,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 
 #    print ip_address
 #    print region_name, company_name, os, instance_type
-    sys.stdout.flush()
+#    sys.stdout.flush()
     instance    = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
                              key_name      = company_name, 
@@ -166,9 +183,9 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # associate ip_address
 
 # run a thread for instance preparation
-    thread 	= threading.Thread(target = prepare_instance, 
-                              args   = (uname, pswd, instance.id, region))
-    thread.start()
+#    thread 	= threading.Thread(target = prepare_instance, 
+#                              args   = (uname, pswd, instance.id, region))
+#    thread.start()
     
 #    prepare_instance(uname, pswd, instance.id, region)
     return instance.id,instance.public_dns_name
@@ -177,7 +194,7 @@ def get_instance_id(region_name, instance_type, os, company_name, uname, pswd):
 # get the status of an instance
 # return (status,ip_address,url)
 # ----------------------------------------------------------------
-def instance_status(instance_id, region_name):
+def instance_status(instance_id, region_name, uname):
 
 #    print 'in instance status'
 # get the region
@@ -200,7 +217,7 @@ def instance_status(instance_id, region_name):
     
     if state =='running':
 #        print ' > if state was runnig, should be here'
-        if aws.ssh_working_quick(instance_id,region):
+        if aws.ssh_working_quick_uname(instance_id,region,uname,verbose=0):
 #            print '  >> ssh to the instance is working'
             port = '4443' 
             port = '4080' 
