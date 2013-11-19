@@ -30,6 +30,9 @@ def make_AMI(region_name, company_name, ops='ubuntu12.04', instance_type='m1.sma
     region 	= aws.get_region(region_name)
 
 # launch an instance
+    company_name = company_name.strip()
+    for c in r'[]\' /\;,><&*:%=+@!#^()|?^':
+        company_name = company_name.replace(c,'_')
     
     instance_id = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
@@ -130,7 +133,7 @@ def add_users(userDic, instance_id, region_name):
     myconn = connect.Connection(instance_id,region,verbose=1)
 
 # add user 
-    nx.add_users(userDic,myconn,webserver='www\.abaqual\.com',verbose=1)
+    nx.add_users(userDic,myconn,webserver='abaqual\.com',verbose=1)
 
 # disconnect
     myconn.disconnect()
@@ -174,6 +177,10 @@ def get_instance_id(region_name, instance_type, os, company_name):
 #    print ip_address
 #    print region_name, company_name, os, instance_type
 #    sys.stdout.flush()
+    company_name = company_name.strip()
+    for c in r'[]\' /\;,><&*:%=+@!#^()|?^':
+        company_name = company_name.replace(c,'_')
+    
     instance    = aws.launch(instance_type = instance_type, 
                              ami 	   = ami, 
                              key_name      = company_name, 
@@ -284,6 +291,10 @@ def terminate_instance(instance_id, region_name):
 # ----------------------------------------------------------------
 def make_company(company_name, supported_regions): 
     
+    company_name = company_name.strip()
+    for c in r'[]\' /\;,><&*:%=+@!#^()|?^':
+        company_name = company_name.replace(c,'_')
+
     company_dir = companies_root+'/'+company_name 
     if not os.path.exists(company_dir):
         os.makedirs(company_dir)
@@ -298,6 +309,10 @@ def make_company(company_name, supported_regions):
 # ----------------------------------------------------------------
 def remove_company(company_name, supported_regions): 
     
+    company_name = company_name.strip()
+    for c in r'[]\' /\;,><&*:%=+@!#^()|?^':
+        company_name = company_name.replace(c,'_')
+
     key_name 	= company_name
     for region_name in supported_regions:
         region   	= aws.get_region(region_name)
