@@ -287,7 +287,9 @@ def add_users(userDic,connection,webserver='abaqual\.com',verbose=0):
 # make a .bashrc file
         command  += 'sudo cp ~/.bashrc /home/'+uname+'/.bashrc;'+\
                           'sudo chown '+uname+':'+uname+' /home/'+uname+'/.bashrc ;'
-        
+# add to crontab        
+        command  += 'echo \'*  *    * * *   '+uname+' export DISPLAY=:1001; scrot --thumb 160x90 /usr/NX/share/htdocs/nxwebplayer/desktops/disp.jpg; chmod a+r /usr/NX/share/htdocs/nxwebplayer/desktops/disp-thumb.jpg\' | sudo tee -a /etc/crontab ;'
+
         if sudoer:
             command += 'sudo usermod -aG sudo '+uname+' ;'
 

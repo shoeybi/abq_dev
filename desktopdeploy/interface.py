@@ -162,7 +162,7 @@ def get_instance_id(region_name, instance_type, os, company_name):
     
 # AMI's
     ami_dic={('us-east-1','ubuntu12.04') : 'ami-7f507416',
-             ('us-west-1','ubuntu12.04') : 'ami-2e99af6b'}
+             ('us-west-1','ubuntu12.04') : 'ami-faffcebf'}
 
 # get the AMI
     ami 	= ami_dic[(region_name,os)]
