@@ -198,12 +198,21 @@ def get_instance_id(region_name, instance_type, os, company_name):
     return instance.id,instance.public_dns_name
     
 # ----------------------------------------------------------------
+# tells whether url_exists
+# ----------------------------------------------------------------
+def url_exists(site):
+    try:
+        h     = httplib2.Http(timeout=1)
+        resp  = h.request(site, 'HEAD')
+    except:
+        return False
+    return int(resp[0]['status']) < 400
+
+# ----------------------------------------------------------------
 # get the status of an instance
 # return (status,ip_address,url)
 # ----------------------------------------------------------------
 def instance_status(instance_id, region_name, uname):
-
-#    print 'in instance status'
 # get the region
     region 	= aws.get_region(region_name)
 # get the state    
@@ -211,9 +220,9 @@ def instance_status(instance_id, region_name, uname):
         instance 	= aws.get_instance(instance_id,region)
         state    	= instance.state.strip()
         ip_address	= instance.public_dns_name.strip()
-#        print ' > state:',state
+        port 		= '4080' 
+        url  		= 'http://'+ip_address+':'+port
     except:
-#        print ' > could not make it to state'
         return ('terminated','None','None')
     
     if state in ['terminated','shutting-down','invalid'] :
@@ -223,14 +232,9 @@ def instance_status(instance_id, region_name, uname):
         return ('standby','None','None')
     
     if state =='running':
-#        print ' > if state was runnig, should be here'
-        if aws.ssh_working_quick_uname(instance_id,region,uname,verbose=0):
-#            print '  >> ssh to the instance is working'
-            port = '4443' 
-            port = '4080' 
-            url  = 'http://'+ip_address+':'+port
+        if url_exists(url):
             return ('ready',ip_address,url)
-    
+        
     return ('starting up','None','None')
 
 # ----------------------------------------------------------------
