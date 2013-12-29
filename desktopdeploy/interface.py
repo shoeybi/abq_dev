@@ -162,7 +162,7 @@ def get_instance_id(region_name, instance_type, os, company_name):
     
 # AMI's
     ami_dic={('us-east-1','ubuntu12.04') : 'ami-7f507416',
-             ('us-west-1','ubuntu12.04') : 'ami-faffcebf'}
+             ('us-west-1','ubuntu12.04') : 'ami-b0cffff5'}
 
 # get the AMI
     ami 	= ami_dic[(region_name,os)]
@@ -201,12 +201,13 @@ def get_instance_id(region_name, instance_type, os, company_name):
 # tells whether url_exists
 # ----------------------------------------------------------------
 def url_exists(site):
-    try:
-        h     = httplib2.Http(timeout=1)
-        resp  = h.request(site, 'HEAD')
-    except:
-        return False
-    return int(resp[0]['status']) < 400
+    return True
+   # try:
+   #     h     = httplib2.Http(timeout=1)
+   #     resp  = h.request(site, 'HEAD')
+   # except:
+   #     return False
+   # return int(resp[0]['status']) < 400
 
 # ----------------------------------------------------------------
 # get the status of an instance
@@ -232,7 +233,8 @@ def instance_status(instance_id, region_name, uname):
         return ('standby','None','None')
     
     if state =='running':
-        if url_exists(url):
+#        if url_exists(url):
+        if aws.ssh_working_quick_uname(instance_id,region,uname,verbose=0):
             return ('ready',ip_address,url)
         
     return ('starting up','None','None')
