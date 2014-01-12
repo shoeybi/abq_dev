@@ -161,7 +161,7 @@ def add_users(userDic, instance_id, region_name):
 def get_instance_id(region_name, instance_type, os, company_name):
     
 # AMI's
-    ami_dic={('us-east-1','ubuntu12.04') : 'ami-7f507416',
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-a74374ce',
              ('us-west-1','ubuntu12.04') : 'ami-b0cffff5'}
 
 # get the AMI
