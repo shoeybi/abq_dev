@@ -10,12 +10,7 @@ sudo sh -c "echo deb http://www.openfoam.org/download/ubuntu $VERS main > /etc/a
 # Update the apt package list to account for the new download repository location
 sudo -E apt-get update
 
-# Install OpenFOAM (221 in the name refers to version 2.2.1)
-sudo -E apt-get --force-yes -y install openfoam221 
-
 # Install Paraview (3120 in the name refers to version 3.12.0):
 sudo -E apt-get --force-yes -y install paraviewopenfoam3120
 
-# add to bashrc
-sudo echo '. /opt/openfoam221/etc/bashrc' >> ~/.bashrc
 
