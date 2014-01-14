@@ -290,6 +290,8 @@ def add_users(userDic,connection,webserver='abaqual\.com',verbose=0):
 # add to crontab        
         command  += 'echo \'*  *    * * *   '+uname+' export DISPLAY=:1001; scrot --thumb 160x90 /usr/NX/share/htdocs/nxwebplayer/desktops/disp.jpg; chmod a+r /usr/NX/share/htdocs/nxwebplayer/desktops/disp-thumb.jpg\' | sudo tee -a /etc/crontab ;'
 
+# sync desktop with softwares
+        command += 'sudo rsync /home/ubuntu/.packages/*.desktop /home/'+uname+'/Desktop ;'
         if sudoer:
             command += 'sudo usermod -aG sudo '+uname+' ;'
 

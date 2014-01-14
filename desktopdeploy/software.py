@@ -40,10 +40,11 @@ def install(software_name,connection,users,verbose=0):
     connection.copy_to(source,destination)
 
 # populate the application icon to desktops
-    command  	= ''
     icon     	= destination+software_name+'.desktop'
+    command  	= ''
     for uname in users:
-        command += 'sudo cp '+icon+' /home/'+uname+'/Desktop/'
+        command += 'sudo cp '+icon+' /home/'+uname+'/Desktop/'+' ;'
+        command += 'sudo chown '+uname+' /home/'+uname+'/Desktop/'+software_name+'.desktop ;'
     
     connection.run_at(command)
 
@@ -67,19 +68,14 @@ def uninstall(software_name,connection,users,verbose=0):
                       input_type='script',
                       wait_for_output=True,
                       print_stdout=True )
-# delete the application icon 
-    source 	= software_dir+'/'+software_name+'/'+software_name+'.desktop'
-    
-    
-    connection.copy_to(source,destination)
 
 # populate the application icon to desktops
     
     filename    = software_name+'.desktop'
-    command  	= 'sudo rm -f /home/ubuntu/.packages/'+filename
+    command  	= 'sudo rm -f /home/ubuntu/.packages/'+filename+' ;'
         
     for uname in users:
-        command += 'sudo rm -f /home/'+uname+'/Desktop/'+
+        command += 'sudo rm -f /home/'+uname+'/Desktop/'+filename+' ;'
     
     connection.run_at(command)
 

@@ -140,7 +140,9 @@ def add_users(userDic, instance_id, region_name):
     myconn.disconnect()
 
 
-
+# ----------------------------------------------------------------
+# install a series of software tools for various users
+# ----------------------------------------------------------------
 def install_software(software_list, users, instance_id, region_name):
 
 # get the region
@@ -152,6 +154,25 @@ def install_software(software_list, users, instance_id, region_name):
 # install software
     for software_name in software_list:
         software.install(software_name,myconn,users,verbose=1)
+
+# disconnect
+    myconn.disconnect()
+
+
+# ----------------------------------------------------------------
+# uninstall a series of software tools for various users
+# ----------------------------------------------------------------
+def uninstall_software(software_list, users, instance_id, region_name):
+
+# get the region
+    region 	= aws.get_region(region_name)
+
+# establish a connection
+    myconn = connect.Connection(instance_id,region,verbose=1)
+
+# install software
+    for software_name in software_list:
+        software.uninstall(software_name,myconn,users,verbose=1)
 
 # disconnect
     myconn.disconnect()
@@ -245,17 +266,17 @@ def instance_status(instance_id, region_name, uname):
         return ('terminated','None','None')
     
     if state in ['terminated','shutting-down','invalid'] :
-        return ('terminated','None','None')
+        return ('terminated',ip_address,url)
 
     if state in ['stopped','stopping'] :
-        return ('standby','None','None')
+        return ('standby',ip_address,url)
     
     if state =='running':
 #        if url_exists(url):
         if aws.ssh_working_quick_uname(instance_id,region,uname,verbose=0):
             return ('ready',ip_address,url)
         
-    return ('starting up','None','None')
+    return ('starting up',ip_address,url)
 
 # ----------------------------------------------------------------
 # start an instance

@@ -1,8 +1,8 @@
 import interface
 import threading
 
-software_list=['openfoam']
-instance_id = 'i-3fb4d81f'
+software_list=['octave']
+instance_id = 'i-558fe175'
 region_name = 'us-east-1'
 users 	    = ['ykhalighi']
 
