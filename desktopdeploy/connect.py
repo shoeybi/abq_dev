@@ -129,3 +129,25 @@ class Connection:
         else:
             out_lines = []        
         return out_lines
+
+# ----------------------------------------------------------------
+# run a command or script at node
+# ----------------------------------------------------------------   
+    def copy_to(self,source,destination,wait_for_output=True,print_stdout=False):
+# check if connected
+
+        if not self.connected():
+            self.connect()
+        
+# scp to the node
+        proc = aws.scp(self.instance_id,self.region,source,destination)
+
+# write the output if needed
+        if wait_for_output:
+            out_lines = proc.stdout.readlines()
+            if print_stdout:
+                for line in out_lines:
+                    print line,
+        else:
+            out_lines = []        
+        return out_lines

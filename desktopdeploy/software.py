@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+# ================================================================
+# Author : Yaser Khalighi
+# Date : Jan 2014
+#
+# function calls for managing software
+# ================================================================
+import os
+
+# ----------------------------------------------------------------
+# some pre-defined variables. may need to change later on
+# ----------------------------------------------------------------
+
+current_dir  = os.path.dirname(os.path.abspath(__file__))
+software_dir = current_dir+'/software'
+
+# ----------------------------------------------------------------
+# install a piece of software
+# ----------------------------------------------------------------
+
+def install(software_name,connection,users,verbose=0):
+    
+# get the install script
+    script_name	= software_dir+'/'+software_name+'/install.sh'
+
+    try:
+        with open(script_name): pass
+    except IOError:
+        raise NameError('cannot find '+script_name)
+
+# install the script
+    connection.run_at(script_name,
+                      input_type='script',
+                      wait_for_output=True,
+                      print_stdout=True )
+# copy the application icon to the server
+    source 	= software_dir+'/'+software_name+'/'+software_name+'.desktop'
+    destination	= '/home/ubuntu/.packages/'
+    
+    connection.copy_to(source,destination)
+
+# populate the application icon to desktops
+    command  	= ''
+    icon     	= destination+software_name+'.desktop'
+    for uname in users:
+        command += 'sudo cp '+icon+' /home/'+uname+'/Desktop/'
+    
+    connection.run_at(command)
+
+
+# ----------------------------------------------------------------
+# uninstall a piece of software
+# ----------------------------------------------------------------
+
+def uninstall(software_name,connection,users,verbose=0):
+    
+# get the install script
+    script_name	= software_dir+'/'+software_name+'/uninstall.sh'
+
+    try:
+        with open(script_name): pass
+    except IOError:
+        raise NameError('cannot find '+script_name)
+
+# install the script
+    connection.run_at(script_name,
+                      input_type='script',
+                      wait_for_output=True,
+                      print_stdout=True )
+# delete the application icon 
+    source 	= software_dir+'/'+software_name+'/'+software_name+'.desktop'
+    
+    
+    connection.copy_to(source,destination)
+
+# populate the application icon to desktops
+    
+    filename    = software_name+'.desktop'
+    command  	= 'sudo rm -f /home/ubuntu/.packages/'+filename
+        
+    for uname in users:
+        command += 'sudo rm -f /home/'+uname+'/Desktop/'+
+    
+    connection.run_at(command)
+
+
+	

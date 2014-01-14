@@ -444,6 +444,54 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
 # return the Popen object    
     return proc
 
+
+# ----------------------------------------------------------------
+# scp to the node
+# ----------------------------------------------------------------
+def scp(instance_id,region,source,destination,time_out=10,persist=False):
+
+# get the instance
+    instance = get_instance(instance_id,region)
+
+# get key and ip address
+    ip_address    = instance.public_dns_name
+    key_name      = instance.key_name
+    key_dir  	  = companies_root+'/'+key_name
+    key_filename  = key_dir+'/'+key_name+'.pem'
+    try:
+        with open(key_filename): pass
+    except IOError:
+        raise NameError('cannot find '+key_filename)
+
+# prepare scp command
+    uname = 'ubuntu' 
+    account  = uname+'@'+ip_address
+    # persist
+    if persist:
+        persist_ = '-o "ControlPersist 600" '
+    else: 
+        persist_ = ''
+    scp_command = \
+        'scp -o "GSSAPIAuthentication no" -o "StrictHostKeyChecking no" '+\
+        '-o "UserKnownHostsFile /dev/null" '+\
+        '-o "ConnectTimeout '+str(time_out)+'" '+persist_+\
+        '-i '+key_filename+' '+\
+        source+' '+account+':'+destination
+#        '-o "LogLevel QUIET" '+\
+#        '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" '+\
+# launch a scp subprocess 
+    print scp_command
+    sys.stdout.flush()
+    proc  = subprocess.Popen(scp_command,
+                                shell=True,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+
+# return the Popen object    
+    return proc
+
+
 # ----------------------------------------------------------------
 # wait for an instance to run
 # ----------------------------------------------------------------

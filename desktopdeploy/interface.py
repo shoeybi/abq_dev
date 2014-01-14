@@ -13,6 +13,7 @@ import sys
 import os
 import time
 import shutil
+import software
 #threading._DummyThread._Thread__stop = lambda x: 42
 
 current_dir     = aws.current_dir
@@ -134,6 +135,23 @@ def add_users(userDic, instance_id, region_name):
 
 # add user 
     nx.add_users(userDic,myconn,webserver='abaqual\.com',verbose=1)
+
+# disconnect
+    myconn.disconnect()
+
+
+
+def install_software(software_list, users, instance_id, region_name):
+
+# get the region
+    region 	= aws.get_region(region_name)
+
+# establish a connection
+    myconn = connect.Connection(instance_id,region,verbose=1)
+
+# install software
+    for software_name in software_list:
+        software.install(software_name,myconn,users,verbose=1)
 
 # disconnect
     myconn.disconnect()
