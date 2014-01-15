@@ -570,6 +570,7 @@ def ssh_working_quick_uname(instance_id,region,uname,verbose=0):
                time_out=10,
                persist=False)
     out_lines = proc.stdout.readlines()
+    print out_lines
     start_reading = False
     
     for line in out_lines:
