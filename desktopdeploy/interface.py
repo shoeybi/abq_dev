@@ -143,7 +143,7 @@ def add_users(userDic, instance_id, region_name):
 # ----------------------------------------------------------------
 # install a series of software tools for various users
 # ----------------------------------------------------------------
-def install_software(software_list, users, os, instance_id, region_name):
+def install_software(software_list, users, instance_id, region_name):
 
 # get the region
     region 	= aws.get_region(region_name)
@@ -162,7 +162,7 @@ def install_software(software_list, users, os, instance_id, region_name):
 # ----------------------------------------------------------------
 # uninstall a series of software tools for various users
 # ----------------------------------------------------------------
-def uninstall_software(software_list, users, os, instance_id, region_name):
+def uninstall_software(software_list, users, instance_id, region_name):
 
 # get the region
     region 	= aws.get_region(region_name)
