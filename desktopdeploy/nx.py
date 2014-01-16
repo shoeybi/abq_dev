@@ -294,9 +294,8 @@ def add_users(userDic,connection,webserver='abaqual\.com',verbose=0):
             command += 'sudo usermod -aG sudo '+uname+' ;'
 
 # sync desktop with softwares
-        command  += 'sudo rsync /home/ubuntu/.packages/*.desktop /home/'+uname+'/Desktop ;'
-
-
+        command  += 'sudo rsync /home/ubuntu/.packages/*.desktop /home/'+uname+'/Desktop/ ;'
+        command  += 'sudo chown '+uname+' /home/'+uname+'/Desktop/*.desktop ;'
     out_lines 	= connection.run_at(command,print_stdout=print_stdout)
 
 # check if the user is added
