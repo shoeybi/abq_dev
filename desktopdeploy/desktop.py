@@ -1,5 +1,8 @@
 import Image, ImageFont, ImageDraw
 
+#---------------------------------------------------------------
+# make a wallpaper
+#---------------------------------------------------------------
 def make_wallpaper(raw, result, team_name, workspace_name, users): 
     
     Back  = Image.open(raw)
@@ -33,11 +36,50 @@ def make_wallpaper(raw, result, team_name, workspace_name, users):
         i = i + 1
     Back.save(result)
 
-raw     	= '1.png'
-result  	= 'res.png'
-users   	= ['Moahammad Shoeybi','Yaser Khalighi','David Corson'] 
-team_name	= 'Abaqual'
-workspace_name	= 'my workspace 2'
+#---------------------------------------------------------------
+# make a thumbnail
+#---------------------------------------------------------------
+def make_thumb(raw, result, status):
+    thumb  = Image.open(raw)
+    if status in ['terminated', 'standby', 'stopping', 'starting up']:
+        white = Image.new(thumb.mode,thumb.size,color=(256,256,256))
+        thumb = Image.blend(white,thumb,0.5)
+        
+        draw  = ImageDraw.Draw(thumb)
+        fontH = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 225)
+        color = (0,0,0)
+        
+        y_pos = 250
+        
+        if status == 'terminated' :
+            text 	= 'Terminated'
+            x_pos 	= 10
 
-make_wallpaper(raw, result, team_name, workspace_name, users)
+        if status == 'standby' :
+            text 	= 'Paused'
+            x_pos 	= 220
+
+        if status == 'stopping' :
+            text 	= 'Stopping'
+            x_pos 	= 160
+
+        if status == 'starting up' :
+            text 	= 'Starting up'
+            x_pos 	= 30
+        
+    
+    	draw.text((x_pos,y_pos),text,color,font=fontH)
+        
+    thumb.save(result)
+ 
+
+raw     	= 'wallpapers/5.png'
+result  	= 'res.png'
+status	        = 'starting up'
+make_thumb(raw, result, status)   
+#users   	= ['Moahammad Shoeybi','Yaser Khalighi','David Corson'] 
+#team_name	= 'Abaqual'
+#workspace_name	= 'my workspace 2'
+
+#make_wallpaper(raw, result, team_name, workspace_name, users)
 

@@ -14,6 +14,7 @@ import os
 import time
 import shutil
 import software
+import desktop
 #threading._DummyThread._Thread__stop = lambda x: 42
 
 current_dir     = aws.current_dir
@@ -268,7 +269,10 @@ def instance_status(instance_id, region_name, uname):
     if state in ['terminated','shutting-down','invalid'] :
         return ('terminated','None','None')
 
-    if state in ['stopped','stopping'] :
+    if state =='stopping' :
+        return ('stopping','None','None')
+    
+    if state =='stopped' :
         return ('standby','None','None')
     
     if state =='running':
@@ -366,3 +370,32 @@ def remove_company(company_name, supported_regions):
     company_dir = companies_root+'/'+company_name 
     shutil.rmtree(company_dir)
 
+# ----------------------------------------------------------------
+# create image
+# ----------------------------------------------------------------
+def create_thumb(instance_id, region_name, uname):
+    
+    status = instance_status(instance_id, region_name, uname)[0]    
+    num    = hash(instance_id)%11 + 1
+    raw    = current_dir+'/wallpapers/'+num2str(num)+'.png'
+    res    = companies_root+'/thumb_'+instance_id+'.png'
+    desktop.make_thumb(raw, res, status)
+    return res
+    
+# ----------------------------------------------------------------
+# set desktop image
+# ----------------------------------------------------------------
+def set_desktop_wallpaper(instance_id, region_name, team_name, workspace_name, users):
+    num    = hash(instance_id)%11 + 1
+    raw    = current_dir+'/wallpapers/'+num2str(num)+'.png'
+    res    = companies_root+'/wall_paper'+instance_id+'.png'
+    desktop.make_wallpaper(raw, res, team_name, workspace_name, users):
+    
+    # get the region
+    region = aws.get_region(region_name)
+    
+    # establish a connection
+    myconn = connect.Connection(instance_id,region,verbose=1)
+    
+    # copy the wallpaper
+    myconn.copy_to(res,'/usr/share/backgrounds/default.png')
