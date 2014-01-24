@@ -1,4 +1,5 @@
-import Image, ImageFont, ImageDraw
+from PIL import Image
+from PIL import ImageFont, ImageDraw
 
 #---------------------------------------------------------------
 # make a wallpaper
@@ -73,10 +74,10 @@ def make_thumb(raw, result, status):
     thumb.save(result)
  
 
-raw     	= 'wallpapers/5.png'
-result  	= 'res.png'
-status	        = 'starting up'
-make_thumb(raw, result, status)   
+#raw     	= 'wallpapers/5.png'
+#result  	= 'res.png'
+#status	        = 'starting up'
+#make_thumb(raw, result, status)   
 #users   	= ['Moahammad Shoeybi','Yaser Khalighi','David Corson'] 
 #team_name	= 'Abaqual'
 #workspace_name	= 'my workspace 2'

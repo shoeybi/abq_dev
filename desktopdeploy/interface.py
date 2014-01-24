@@ -201,7 +201,7 @@ def uninstall_software(software_list, users, instance_id, region_name):
 def get_instance_id(region_name, instance_type, os, company_name):
     
 # AMI's
-    ami_dic={('us-east-1','ubuntu12.04') : 'ami-7dccff14',
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-39704c50',
              ('us-west-1','ubuntu12.04') : 'ami-e63c0ea3'}
 
 # get the AMI
@@ -377,7 +377,7 @@ def create_thumb(instance_id, region_name, uname):
     
     status = instance_status(instance_id, region_name, uname)[0]    
     num    = hash(instance_id)%11 + 1
-    raw    = current_dir+'/wallpapers/'+num2str(num)+'.png'
+    raw    = current_dir+'/wallpapers/'+str(num)+'.png'
     res    = companies_root+'/thumb_'+instance_id+'.png'
     desktop.make_thumb(raw, res, status)
     return res
@@ -387,9 +387,9 @@ def create_thumb(instance_id, region_name, uname):
 # ----------------------------------------------------------------
 def set_desktop_wallpaper(instance_id, region_name, team_name, workspace_name, users):
     num    = hash(instance_id)%11 + 1
-    raw    = current_dir+'/wallpapers/'+num2str(num)+'.png'
+    raw    = current_dir+'/wallpapers/'+str(num)+'.png'
     res    = companies_root+'/wall_paper'+instance_id+'.png'
-    desktop.make_wallpaper(raw, res, team_name, workspace_name, users):
+    desktop.make_wallpaper(raw, res, team_name, workspace_name, users)
     
     # get the region
     region = aws.get_region(region_name)
@@ -398,4 +398,4 @@ def set_desktop_wallpaper(instance_id, region_name, team_name, workspace_name, u
     myconn = connect.Connection(instance_id,region,verbose=1)
     
     # copy the wallpaper
-    myconn.copy_to(res,'/usr/share/backgrounds/default.png')
+    myconn.copy_to(res,'/home/ubuntu/.abq/default.png')
