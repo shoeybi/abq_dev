@@ -9,16 +9,16 @@ def make_wallpaper(raw, result, team_name, workspace_name, users):
     Back  = Image.open(raw)
     draw  = ImageDraw.Draw(Back)
 
-    fontB  = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 32)
-    font   = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-L.ttf', 32)
-    fontsB = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 24)
-    fonts  = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-L.ttf', 24)
+    fontB  = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 28)
+    font   = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-L.ttf', 28)
+    fontsB = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 22)
+    fonts  = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-L.ttf', 22)
 
-    x_shift = 750
-    y_shift = 100
-    x_tab   = 190
-    y_tab   = 40
-    y_tabs  = 32
+    x_shift = 675
+    y_shift = 90
+    x_tab   = 170
+    y_tab   = 36
+    y_tabs  = 29
 
     title_color = (160,160,160)
     text_color  = (160,160,160)
@@ -47,10 +47,10 @@ def make_thumb(raw, result, status):
         thumb = Image.blend(white,thumb,0.5)
         
         draw  = ImageDraw.Draw(thumb)
-        fontH = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 225)
+        fontH = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf', 200)
         color = (0,0,0)
         
-        y_pos = 250
+        y_pos = 225
         
         if status == 'TR' :
             text 	= 'Terminated'
@@ -58,15 +58,15 @@ def make_thumb(raw, result, status):
 
         if status == 'PA' :
             text 	= 'Paused'
-            x_pos 	= 220
+            x_pos 	= 200
 
         if status == 'ST' :
             text 	= 'Stopping'
-            x_pos 	= 160
+            x_pos 	= 144
 
         if status == 'SU' :
             text 	= 'Starting up'
-            x_pos 	= 30
+            x_pos 	= 27
         
     
     	draw.text((x_pos,y_pos),text,color,font=fontH)
