@@ -42,7 +42,7 @@ def make_wallpaper(raw, result, team_name, workspace_name, users):
 #---------------------------------------------------------------
 def make_thumb(raw, result, status):
     thumb  = Image.open(raw)
-    if status in ['terminated', 'standby', 'stopping', 'starting up']:
+    if status in ['TR', 'PA', 'ST', 'SU']:
         white = Image.new(thumb.mode,thumb.size,color=(256,256,256))
         thumb = Image.blend(white,thumb,0.5)
         
@@ -52,19 +52,19 @@ def make_thumb(raw, result, status):
         
         y_pos = 250
         
-        if status == 'terminated' :
+        if status == 'TR' :
             text 	= 'Terminated'
             x_pos 	= 10
 
-        if status == 'standby' :
+        if status == 'PA' :
             text 	= 'Paused'
             x_pos 	= 220
 
-        if status == 'stopping' :
+        if status == 'ST' :
             text 	= 'Stopping'
             x_pos 	= 160
 
-        if status == 'starting up' :
+        if status == 'SU' :
             text 	= 'Starting up'
             x_pos 	= 30
         
@@ -73,14 +73,4 @@ def make_thumb(raw, result, status):
         
     thumb.save(result)
  
-
-#raw     	= 'wallpapers/5.png'
-#result  	= 'res.png'
-#status	        = 'starting up'
-#make_thumb(raw, result, status)   
-#users   	= ['Moahammad Shoeybi','Yaser Khalighi','David Corson'] 
-#team_name	= 'Abaqual'
-#workspace_name	= 'my workspace 2'
-
-#make_wallpaper(raw, result, team_name, workspace_name, users)
 

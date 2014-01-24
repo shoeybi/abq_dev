@@ -373,9 +373,8 @@ def remove_company(company_name, supported_regions):
 # ----------------------------------------------------------------
 # create image
 # ----------------------------------------------------------------
-def create_thumb(instance_id, region_name, uname):
+def create_thumb(instance_id, status):
     
-    status = instance_status(instance_id, region_name, uname)[0]    
     num    = hash(instance_id)%11 + 1
     raw    = current_dir+'/wallpapers/'+str(num)+'.png'
     res    = companies_root+'/thumb_'+instance_id+'.png'
