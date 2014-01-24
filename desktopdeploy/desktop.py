@@ -58,7 +58,7 @@ def make_thumb(raw, result, status):
 
         if status == 'PA' :
             text 	= 'Paused'
-            x_pos 	= 200
+            x_pos 	= 240
 
         if status == 'ST' :
             text 	= 'Stopping'
@@ -66,7 +66,7 @@ def make_thumb(raw, result, status):
 
         if status == 'SU' :
             text 	= 'Starting up'
-            x_pos 	= 32
+            x_pos 	= 50
         
     
     	draw.text((x_pos,y_pos),text,color,font=fontH)
