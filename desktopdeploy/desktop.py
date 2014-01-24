@@ -66,7 +66,7 @@ def make_thumb(raw, result, status):
 
         if status == 'SU' :
             text 	= 'Starting up'
-            x_pos 	= 27
+            x_pos 	= 32
         
     
     	draw.text((x_pos,y_pos),text,color,font=fontH)
