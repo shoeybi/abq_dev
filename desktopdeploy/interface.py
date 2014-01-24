@@ -201,7 +201,7 @@ def uninstall_software(software_list, users, instance_id, region_name):
 def get_instance_id(region_name, instance_type, os, company_name):
     
 # AMI's
-    ami_dic={('us-east-1','ubuntu12.04') : 'ami-39704c50',
+    ami_dic={('us-east-1','ubuntu12.04') : 'ami-591b2730',
              ('us-west-1','ubuntu12.04') : 'ami-e63c0ea3'}
 
 # get the AMI
@@ -375,8 +375,17 @@ def remove_company(company_name, supported_regions):
 # ----------------------------------------------------------------
 def create_thumb(instance_id, status):
     
-    num    = hash(instance_id)%11 + 1
-    raw    = current_dir+'/wallpapers/'+str(num)+'.png'
+    raw    = companies_root+'/fetch'+instance_id+'.png'
+    try:
+        with open(raw): pass
+    except IOError:
+        raw    = companies_root+'/wall_paper'+instance_id+'.png'
+        try:
+            with open(raw): pass
+        except IOError:
+            num    = hash(instance_id)%11 + 1
+            raw    = current_dir+'/wallpapers/'+str(num)+'.png'
+
     res    = companies_root+'/thumb_'+instance_id+'.png'
     desktop.make_thumb(raw, res, status)
     return res
