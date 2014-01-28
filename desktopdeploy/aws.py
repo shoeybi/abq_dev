@@ -433,7 +433,7 @@ def ssh(instance_id,region,command='',time_out=10,persist=False):
 #        '-o "LogLevel QUIET" '+\
 #        '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" '+\
 # launch a ssh subprocess 
-    print ssh_command+' '+command
+#   print ssh_command+' '+command
     sys.stdout.flush()
     proc  = subprocess.Popen(ssh_command+' '+command,
                                 shell=True,
@@ -480,7 +480,7 @@ def scp(instance_id,region,source,destination,time_out=10,persist=False):
 #        '-o "LogLevel QUIET" '+\
 #        '-o "ControlMaster auto" -o "ControlPath ~/.ssh/'+account+'" '+\
 # launch a scp subprocess 
-    print scp_command
+#   print scp_command
     sys.stdout.flush()
     proc  = subprocess.Popen(scp_command,
                                 shell=True,
@@ -504,7 +504,7 @@ def ssh_is_running(instance_id,region,verbose=0):
             print 'waiting for ssh ',
         proc = ssh(instance_id,region,command='echo working')
         out_lines = proc.stdout.readlines()
-        print out_lines
+#        print out_lines
         time.sleep(10)
         try:
             out_phrase = out_lines[-1].strip()
@@ -570,7 +570,7 @@ def ssh_working_quick_uname(instance_id,region,uname,verbose=0):
                time_out=10,
                persist=False)
     out_lines = proc.stdout.readlines()
-    print out_lines
+#    print out_lines
     start_reading = False
     
     for line in out_lines:

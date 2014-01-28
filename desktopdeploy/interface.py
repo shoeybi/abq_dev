@@ -85,7 +85,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
     # establish a connection
 #    start_time = time.time()
-    myconn = connect.Connection(instance_id,region,verbose=1)
+    myconn = connect.Connection(instance_id,region,verbose=0)
 #    print 'establish connection',time.time()-start_time
 # prepare nx
 #    current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -103,7 +103,7 @@ def prepare_instance(uname, pswd, instance_id, region):
 
 #    print instance_id,region,uname,pswd
     
-    nx.add_user(userDic,myconn,webserver='abaqual\.com',verbose=1)
+    nx.add_user(userDic,myconn,webserver='abaqual\.com',verbose=0)
 
 
 #    print 'add user',time.time()-start_time
@@ -132,10 +132,10 @@ def add_users(userDic, instance_id, region_name):
     region 	= aws.get_region(region_name)
 
 # establish a connection
-    myconn = connect.Connection(instance_id,region,verbose=1)
+    myconn = connect.Connection(instance_id,region,verbose=0)
 
 # add user 
-    nx.add_users(userDic,myconn,webserver='abaqual\.com',verbose=1)
+    nx.add_users(userDic,myconn,webserver='abaqual\.com',verbose=0)
 
 # disconnect
     myconn.disconnect()
@@ -150,11 +150,11 @@ def install_software(software_list, users, instance_id, region_name):
     region 	= aws.get_region(region_name)
 
 # establish a connection
-    myconn = connect.Connection(instance_id,region,verbose=1)
+    myconn = connect.Connection(instance_id,region,verbose=0)
 
 # install software
     for software_name in software_list:
-        software.install(software_name,myconn,users,verbose=1)
+        software.install(software_name,myconn,users,verbose=0)
 
 # disconnect
     myconn.disconnect()
@@ -169,11 +169,11 @@ def uninstall_software(software_list, users, instance_id, region_name):
     region 	= aws.get_region(region_name)
 
 # establish a connection
-    myconn = connect.Connection(instance_id,region,verbose=1)
+    myconn = connect.Connection(instance_id,region,verbose=0)
 
 # install software
     for software_name in software_list:
-        software.uninstall(software_name,myconn,users,verbose=1)
+        software.uninstall(software_name,myconn,users,verbose=0)
 
 # disconnect
     myconn.disconnect()
@@ -403,7 +403,7 @@ def set_desktop_wallpaper(instance_id, region_name, team_name, workspace_name, u
     region = aws.get_region(region_name)
     
     # establish a connection
-    myconn = connect.Connection(instance_id,region,verbose=1)
+    myconn = connect.Connection(instance_id,region,verbose=0)
     
     # copy the wallpaper
     myconn.copy_to(res,'/home/ubuntu/.abq/default.png')
