@@ -79,5 +79,26 @@ def uninstall(software_name,connection,users,verbose=0):
     
     connection.run_at(command)
 
-
+# ----------------------------------------------------------------
+# get software list
+# ----------------------------------------------------------------
 	
+def get_software_list(connection,verbose=0):
+
+# get the command
+    command = 'more /home/ubuntu/.packages/installed'
+
+# get the list
+    out_lines = connection.run_at(command,
+                                  input_type='command',
+                                  wait_for_output=True)
+
+# analyze the output
+    output_list = [] 
+    
+    for line in out_lines:
+        matchObj = re.search('^package\s(\S+)',line)
+        if matchObj:
+            output_list.append(matchObj.group(1))
+ # return
+    return output_list

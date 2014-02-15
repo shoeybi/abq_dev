@@ -114,6 +114,15 @@ class Connection:
             except IOError:
                 raise NameError("cannot find "+input)
             command_prep = ' <'+input
+        elif input_type is 'scripts' :
+            command_prep = ' < (cat '
+            for item in input:
+                try:
+                    with open(item): pass
+                except IOError:
+                    raise NameError("cannot find "+item)
+                command_prep += item+' '
+            command_prep += ')'
         else :
             raise NameError(input_type+" is not recognized")
 
