@@ -190,26 +190,27 @@ def sync_software(software_list, users, instance_id, region_name):
     myconn = connect.Connection(instance_id,region,verbose=0)
 
 # get the installed software list
-    installed = get_software_list(myconn) 
+    installed = software.get_software_list(myconn) 
 
 # disconnect
     myconn.disconnect()
     
-# install software
-    install   = list(set(software_list) - set(installed))
-    if (install) :
-        install_software(install,   users, instance_id, region_name)
-
 # uninstall software
     uninstall = list(set(installed) - set(software_list))
     if (uninstall) :
         uninstall_software(uninstall, users, instance_id, region_name)
 
 
+# install software
+    install   = list(set(software_list) - set(installed))
+    if (install) :
+        install_software(install,   users, instance_id, region_name)
+
 
 # ----------------------------------------------------------------
 # launch an prepare an instance, then return the instance id
 # 
+
 # supported OS's are: 
 #   - ubuntu12.04
 #

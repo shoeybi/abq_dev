@@ -1,11 +1,10 @@
 import interface
-import threading
 
-software_list=['octave']
-instance_id = 'i-558fe175'
+software_list=['gimp']
+instance_id = 'i-d55516fb'
 region_name = 'us-east-1'
 users 	    = ['ykhalighi']
 
-interface.install_software(software_list, users, instance_id, region_name)
+interface.sync_software(software_list, users, instance_id, region_name)
 
 

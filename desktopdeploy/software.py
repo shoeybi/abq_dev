@@ -6,6 +6,7 @@
 # function calls for managing software
 # ================================================================
 import os
+import re
 
 # ----------------------------------------------------------------
 # some pre-defined variables. may need to change later on
@@ -86,7 +87,7 @@ def uninstall(software_name,connection,users,verbose=0):
 def get_software_list(connection,verbose=0):
 
 # get the command
-    command = 'more /home/ubuntu/.packages/installed'
+    command = 'cat /home/ubuntu/.packages/installed'
 
 # get the list
     out_lines = connection.run_at(command,
